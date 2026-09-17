@@ -1,11 +1,22 @@
-venv/
+# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables / secrets
 .env
-*.db
-data/*.db
-static/uploads/ids/*
-static/uploads/photos/*
-!static/uploads/ids/.gitkeep
-!static/uploads/photos/.gitkeep
+.env.*
+
+# IDE settings
+.vscode/
+.idea/
+
+# macOS
 .DS_Store
+
+# Logs
+*.log
