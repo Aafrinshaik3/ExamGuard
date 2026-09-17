@@ -1,0 +1,58 @@
+session_id,candidate_name,exam_title,cluster,profile,tab_switch_count,face_absent_seconds,score,risk_label
+57,Catherine Green,ML Basics Test,0,High distraction / risk,10,426,0.0,High
+56,Catherine Green,ML Basics Test,0,High distraction / risk,11,489,0.0,High
+55,John Price,Data Structures Midterm,1,Clean / focused,1,9,80.5,Low
+54,John Price,Data Structures Midterm,1,Clean / focused,0,32,89.67,Low
+53,Taylor Silva,DBMS Quiz,1,Clean / focused,2,33,68.5,Medium
+52,Taylor Silva,Python Assessment,1,Clean / focused,1,31,86.83,Low
+51,George Orozco,DBMS Quiz,0,High distraction / risk,8,363,0.0,High
+50,George Orozco,DBMS Quiz,0,High distraction / risk,8,192,0.0,High
+49,Michelle Wagner,ML Basics Test,2,High distraction / risk,5,94,0.0,High
+48,Colleen Brock,Networks Final,1,Clean / focused,0,13,87.83,Low
+47,John Atkinson,ML Basics Test,1,Clean / focused,1,44,78.67,Low
+46,John Atkinson,DBMS Quiz,1,Clean / focused,0,22,86.33,Low
+45,John Santana,DBMS Quiz,1,Clean / focused,1,29,76.17,Low
+44,John Santana,ML Basics Test,1,Clean / focused,0,27,89.5,Low
+43,Stephanie Gilbert,Data Structures Midterm,0,High distraction / risk,10,226,0.0,High
+42,Benjamin Beck,ML Basics Test,1,Clean / focused,2,26,68.67,Medium
+41,Benjamin Beck,Networks Final,1,Clean / focused,0,5,89.17,Low
+40,Richard Graham,DBMS Quiz,2,High distraction / risk,6,84,0.0,High
+39,Richard Graham,DBMS Quiz,2,High distraction / risk,6,91,0.0,High
+38,Sean Rasmussen,Data Structures Midterm,1,Clean / focused,2,19,75.83,Low
+37,Sean Rasmussen,Networks Final,1,Clean / focused,0,50,91.67,Low
+36,Debra Cobb,Networks Final,1,Clean / focused,0,40,93.33,Low
+35,Debra Cobb,Data Structures Midterm,1,Clean / focused,1,47,68.17,Medium
+34,Mary Gomez,Networks Final,2,High distraction / risk,6,134,0.0,High
+33,Mary Gomez,ML Basics Test,2,High distraction / risk,6,136,0.0,High
+32,Benjamin Ware,ML Basics Test,2,High distraction / risk,4,129,0.0,High
+31,Danielle Odonnell,Networks Final,1,Clean / focused,1,23,78.17,Low
+30,Matthew Mcmillan,Data Structures Midterm,1,Clean / focused,0,21,86.5,Low
+29,Derek Mahoney,Networks Final,1,Clean / focused,2,38,61.67,Medium
+28,Emily Green,Networks Final,1,Clean / focused,0,14,87.67,Low
+27,Emily Green,Networks Final,1,Clean / focused,1,8,79.67,Low
+26,Sarah Moore,DBMS Quiz,2,High distraction / risk,3,89,20.17,High
+25,Sarah Moore,ML Basics Test,2,High distraction / risk,5,127,0.0,High
+24,Michael Cross,Python Assessment,1,Clean / focused,2,33,73.5,Low
+23,Michael Cross,ML Basics Test,1,Clean / focused,2,38,72.67,Low
+22,Brandon Molina,ML Basics Test,1,Clean / focused,2,6,72.0,Low
+21,Brandon Molina,Networks Final,1,Clean / focused,2,25,69.83,Medium
+20,Rebecca Rodriguez,DBMS Quiz,2,High distraction / risk,3,104,0.0,High
+19,Laura Kennedy,Python Assessment,2,High distraction / risk,4,74,13.67,High
+18,Laura Kennedy,Data Structures Midterm,2,High distraction / risk,5,87,0.0,High
+17,Crystal Robinson,Python Assessment,2,High distraction / risk,5,63,0.0,High
+16,Deborah Brennan,Data Structures Midterm,1,Clean / focused,2,5,72.17,Low
+15,Deborah Brennan,DBMS Quiz,1,Clean / focused,2,8,77.67,Low
+14,Katherine Rodriguez,Networks Final,2,High distraction / risk,6,141,0.0,High
+13,Sherri Baker,Data Structures Midterm,2,High distraction / risk,3,82,11.33,High
+12,Sherri Baker,Python Assessment,2,High distraction / risk,5,78,21.0,High
+11,Arthur James,ML Basics Test,0,High distraction / risk,10,215,0.0,High
+10,Arthur James,Networks Final,0,High distraction / risk,10,359,0.0,High
+9,Kimberly Burgess,DBMS Quiz,0,High distraction / risk,9,406,0.0,High
+8,Kimberly Burgess,DBMS Quiz,0,High distraction / risk,14,184,0.0,High
+7,Crystal Johnson,ML Basics Test,2,High distraction / risk,6,80,0.0,High
+6,Holly Wood,Data Structures Midterm,2,High distraction / risk,4,109,0.0,High
+5,Thomas Miller,ML Basics Test,1,Clean / focused,0,15,91.5,Low
+4,Thomas Miller,Networks Final,1,Clean / focused,0,20,91.67,Low
+3,Olivia Moore,Data Structures Midterm,1,Clean / focused,2,8,66.67,Medium
+2,Olivia Moore,Networks Final,1,Clean / focused,1,11,84.17,Low
+1,Angie Henderson,Data Structures Midterm,1,Clean / focused,1,22,82.33,Low

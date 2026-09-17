@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Sign In — ExamGuard{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-header-tabs">
+      <button type="button" class="tab-btn {% if role_hint != 'invigilator' %}active{% endif %}" id="tabStudent" onclick="switchRole('student')">
+        🎓 Student
+      </button>
+      <button type="button" class="tab-btn {% if role_hint == 'invigilator' %}active{% endif %}" id="tabAdmin" onclick="switchRole('admin')">
+        🛡️ Admin / Invigilator
+      </button>
+    </div>
+
+    <h1 id="loginTitle" style="margin-top:1rem;">
+      {% if role_hint == 'invigilator' %}Admin Sign In{% else %}Student Sign In{% endif %}
+    </h1>
+    <p class="sub" id="loginSubtitle">
+      {% if role_hint == 'invigilator' %}
+        Access live proctoring, student voice &amp; face tracking, and reports
+      {% else %}
+        Attend your scheduled online exams with automated proctoring
+      {% endif %}
+    </p>
+
+    <form method="POST" id="loginForm" class="mt-2">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" class="form-control" required autofocus placeholder="name@college.edu">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-control" required placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Sign In</button>
+    </form>
+
+    <div class="text-center text-muted mt-2" style="font-size:0.88rem;">
+      Don't have an account? 
+      <a href="{{ url_for('auth.register', role='candidate') }}" id="registerLink">Register here</a>
+    </div>
+
+    <div class="text-center mt-2" style="font-size:0.82rem;">
+      <a href="{{ url_for('auth.index') }}" class="text-muted">← Back to Portal Selection</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchRole(role) {
+  const tabStudent = document.getElementById('tabStudent');
+  const tabAdmin = document.getElementById('tabAdmin');
+  const title = document.getElementById('loginTitle');
+  const sub = document.getElementById('loginSubtitle');
+  const regLink = document.getElementById('registerLink');
+  const submitBtn = document.getElementById('submitBtn');
+
+  if (role === 'admin') {
+    tabStudent.classList.remove('active');
+    tabAdmin.classList.add('active');
+    title.textContent = 'Admin / Invigilator Sign In';
+    sub.textContent = 'Access live proctoring, student voice & face tracking, and reports';
+    regLink.href = "{{ url_for('auth.register', role='invigilator') }}";
+    regLink.textContent = 'Register as Invigilator';
+    submitBtn.className = 'btn btn-dark btn-block';
+  } else {
+    tabAdmin.classList.remove('active');
+    tabStudent.classList.add('active');
+    title.textContent = 'Student Sign In';
+    sub.textContent = 'Attend your scheduled online exams with automated proctoring';
+    regLink.href = "{{ url_for('auth.register', role='candidate') }}";
+    regLink.textContent = 'Register as Student';
+    submitBtn.className = 'btn btn-primary btn-block';
+  }
+}
+
+// Initial sync
+{% if role_hint == 'invigilator' %}
+switchRole('admin');
+{% endif %}
+</script>
+{% endblock %}

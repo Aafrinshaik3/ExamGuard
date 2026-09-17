@@ -1,0 +1,935 @@
+{% extends "base.html" %}
+{% block title %}ExamGuard Analytics — Admin{% endblock %}
+
+{% block content %}
+<style>
+  .analytics-shell {
+    display: flex;
+    min-height: calc(100vh - 70px);
+    margin: -2rem -1.25rem;
+    background: #0f1117;
+    color: #e5e7eb;
+    font-family: "Inter", system-ui, sans-serif;
+  }
+  .analytics-sidebar {
+    width: 240px;
+    background: #1a1d24;
+    border-right: 1px solid #2d3340;
+    padding: 1.5rem 1rem;
+    flex-shrink: 0;
+  }
+  .analytics-sidebar h2 {
+    font-size: 1.15rem;
+    margin: 0 0 0.25rem;
+    color: #f8fafc;
+    font-weight: 600;
+  }
+  .analytics-sidebar .caption {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-bottom: 1.25rem;
+  }
+  .analytics-sidebar .refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border: 1px solid #3b4453;
+    color: #e5e7eb;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    transition: background 0.15s;
+    text-decoration: none;
+  }
+  .analytics-sidebar .refresh-btn:hover {
+    background: #252a33;
+    color: #fff;
+    text-decoration: none;
+  }
+  .analytics-sidebar .nav-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+  }
+  .analytics-sidebar .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    text-decoration: none;
+    margin-bottom: 0.15rem;
+  }
+  .analytics-sidebar .nav-item:hover {
+    background: #252a33;
+    color: #e5e7eb;
+    text-decoration: none;
+  }
+  .analytics-sidebar .nav-item.active {
+    background: #1e293b;
+    color: #f8fafc;
+    font-weight: 500;
+  }
+  .analytics-sidebar .nav-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #475569;
+    flex-shrink: 0;
+  }
+  .analytics-sidebar .nav-item.active .dot {
+    background: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+  }
+  .analytics-main {
+    flex: 1;
+    padding: 1.5rem 2rem;
+    overflow-x: auto;
+  }
+  .analytics-main h1 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 0 0 1.25rem;
+    color: #f1f5f9;
+  }
+  .analytics-main h2 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.5rem 0 1rem;
+    color: #f1f5f9;
+  }
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 960px) {
+    .charts-row { grid-template-columns: 1fr; }
+    .analytics-shell { flex-direction: column; }
+    .analytics-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #2d3340; }
+  }
+  .chart-card {
+    background: #161b22;
+    border: 1px solid #2d3340;
+    border-radius: 12px;
+    padding: 1.25rem 1.25rem 0.75rem;
+  }
+  .chart-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem;
+    color: #e2e8f0;
+  }
+  .chart-wrap {
+    position: relative;
+    height: 280px;
+  }
+  .chart-wrap.tall { height: 340px; }
+  .analytics-table-wrap {
+    background: #161b22;
+    border: 1px solid #2d3340;
+    border-radius: 12px;
+    overflow: auto;
+  }
+  table.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  table.analytics-table thead th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    background: #1e2430;
+    color: #94a3b8;
+    font-weight: 500;
+    border-bottom: 1px solid #2d3340;
+    white-space: nowrap;
+  }
+  table.analytics-table tbody td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid #1e2430;
+    color: #e2e8f0;
+  }
+  table.analytics-table tbody tr:hover td { background: #1a1f2a; }
+  table.analytics-table tbody tr:last-child td { border-bottom: none; }
+  .score-none { color: #64748b; }
+  .badge-status {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    background: #1e293b;
+    color: #94a3b8;
+  }
+  .badge-status.submitted { background: #14532d; color: #86efac; }
+  .badge-status.active { background: #1e3a5f; color: #93c5fd; }
+  .badge-status.terminated { background: #7f1d1d; color: #fca5a5; }
+  .badge-risk-Low { background: #14532d; color: #86efac; }
+  .badge-risk-Medium { background: #78350f; color: #fcd34d; }
+  .badge-risk-High { background: #7f1d1d; color: #fca5a5; }
+  .kpi-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .kpi {
+    background: #161b22;
+    border: 1px solid #2d3340;
+    border-radius: 10px;
+    padding: 0.85rem 1.15rem;
+    min-width: 120px;
+  }
+  .kpi .label { font-size: 0.75rem; color: #94a3b8; }
+  .kpi .value { font-size: 1.35rem; font-weight: 600; color: #f8fafc; margin-top: 0.15rem; }
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #94a3b8;
+  }
+  .muted { color: #94a3b8; font-size: 0.9rem; }
+  .ai-box {
+    background: #161b22;
+    border: 1px solid #2d3340;
+    border-left: 4px solid #3b82f6;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    color: #e2e8f0;
+    line-height: 1.55;
+  }
+  .export-card {
+    background: #161b22;
+    border: 1px solid #2d3340;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+  .export-card .name { font-weight: 600; color: #f1f5f9; }
+  .export-card .meta { font-size: 0.8rem; color: #94a3b8; }
+  .btn-dark {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .btn-dark:hover { background: #1d4ed8; color: #fff; text-decoration: none; }
+  select.dark-select {
+    background: #161b22;
+    border: 1px solid #3b4453;
+    color: #e5e7eb;
+    padding: 0.45rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  body { background: #0f1117 !important; }
+  .eg-main { max-width: none !important; padding: 0 !important; }
+</style>
+
+<div class="analytics-shell">
+  <aside class="analytics-sidebar">
+    <h2>ExamGuard Analytics</h2>
+    <p class="caption">Live data from examguard.db<br><span style="color:#22c55e;">Native Flask — no Streamlit</span></p>
+    <a class="refresh-btn" href="{{ url_for('admin.analytics', page=page) }}">
+      ↻ Refresh data
+    </a>
+    <div class="nav-label">Go to</div>
+    {% set nav = [
+      ('overview', 'Overview'),
+      ('students', 'All students'),
+      ('scores', 'Scores'),
+      ('events', 'Events'),
+      ('clustering', 'Clustering'),
+      ('risk', 'Risk'),
+      ('drilldown', 'Drill-down'),
+      ('exports', 'Exports'),
+    ] %}
+    {% for key, label in nav %}
+    <a href="{{ url_for('admin.analytics', page=key) }}"
+       class="nav-item {% if page == key %}active{% endif %}">
+      <span class="dot"></span> {{ label }}
+    </a>
+    {% endfor %}
+    <div style="margin-top:1.5rem;border-top:1px solid #2d3340;padding-top:1rem;">
+      <a href="{{ url_for('admin.dashboard') }}" class="nav-item">
+        <span class="dot"></span> ← Admin Dashboard
+      </a>
+    </div>
+  </aside>
+
+  <div class="analytics-main">
+
+    {% if total_attempts == 0 and page == 'overview' %}
+    <div class="empty-state">
+      <h2>No exam data yet</h2>
+      <p>Have students complete exams, or run <code>python scripts/generate_synthetic_data.py</code> for demo data.</p>
+    </div>
+    {% endif %}
+
+    {% if page == 'overview' and total_attempts > 0 %}
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Total attempts</div><div class="value">{{ total_attempts }}</div></div>
+      <div class="kpi"><div class="label">Unique students</div><div class="value">{{ unique_students }}</div></div>
+      <div class="kpi"><div class="label">Scored sessions</div><div class="value">{{ scored_sessions }}</div></div>
+      <div class="kpi"><div class="label">Avg integrity</div><div class="value">{{ avg_integrity }}</div></div>
+      <div class="kpi"><div class="label">High risk</div><div class="value">{{ high_risk_count }}</div></div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>Proctoring Risk Distribution</h3>
+        <div class="chart-wrap"><canvas id="riskChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Average Test Score by Category (%)</h3>
+        <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
+      </div>
+    </div>
+
+    <h2>Latest attempts (all students)</h2>
+    <div class="analytics-table-wrap">
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>session_id</th>
+            <th>candidate_name</th>
+            <th>exam_title</th>
+            <th>category</th>
+            <th>difficulty</th>
+            <th>status</th>
+            <th>test_score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in latest_attempts %}
+          <tr>
+            <td>{{ loop.index0 }}</td>
+            <td>{{ a.session_id }}</td>
+            <td>{{ a.candidate_name }}</td>
+            <td>{{ a.exam_title }}</td>
+            <td>{{ a.category }}</td>
+            <td>{{ a.difficulty }}</td>
+            <td><span class="badge-status {{ a.status }}">{{ a.status }}</span></td>
+            <td>
+              {% if a.test_score is not none %}
+                {{ a.test_score|round(1) if a.test_score is number else a.test_score }}
+              {% else %}
+                <span class="score-none">None</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if page == 'students' %}
+    <h1>All students who attempted exams</h1>
+    <p class="muted">Every session stored in the database — submitted, terminated, or still active.</p>
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Sessions</div><div class="value">{{ total_sessions }}</div></div>
+      <div class="kpi"><div class="label">Students</div><div class="value">{{ unique_students }}</div></div>
+    </div>
+    <h2>Per-student summary</h2>
+    <div class="analytics-table-wrap">
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>candidate_name</th>
+            <th>email</th>
+            <th>attempts</th>
+            <th>avg_score</th>
+            <th>exams</th>
+            <th>tab_switches</th>
+            <th>face_absent_s</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in student_summary %}
+          <tr>
+            <td>{{ s.candidate_name }}</td>
+            <td>{{ s.candidate_email }}</td>
+            <td>{{ s.attempts }}</td>
+            <td>{% if s.avg_score is not none %}{{ s.avg_score }}{% else %}<span class="score-none">—</span>{% endif %}</td>
+            <td style="max-width:280px;">{{ s.exams }}</td>
+            <td>{{ s.tab_switches }}</td>
+            <td>{{ s.face_absent_seconds }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="muted">No students yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <h2>Full session list</h2>
+    <div class="analytics-table-wrap">
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>session_id</th>
+            <th>candidate_name</th>
+            <th>exam_title</th>
+            <th>status</th>
+            <th>integrity</th>
+            <th>risk</th>
+            <th>tabs</th>
+            <th>face_abs_s</th>
+            <th>started_at</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in all_attempts %}
+          <tr>
+            <td>{{ a.session_id }}</td>
+            <td>{{ a.candidate_name }}</td>
+            <td>{{ a.exam_title }}</td>
+            <td><span class="badge-status {{ a.status }}">{{ a.status }}</span></td>
+            <td>{% if a.integrity_score is not none %}{{ a.integrity_score|round(1) }}{% else %}<span class="score-none">—</span>{% endif %}</td>
+            <td>{% if a.risk_label %}<span class="badge-status badge-risk-{{ a.risk_label }}">{{ a.risk_label }}</span>{% else %}—{% endif %}</td>
+            <td>{{ a.tab_switch_count }}</td>
+            <td>{{ a.face_absent_seconds }}</td>
+            <td>{{ a.started_at or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if page == 'scores' %}
+    <h1>Integrity scores</h1>
+    {% if not scored %}
+    <p class="muted">No scored sessions yet. Students must submit (or be auto-terminated with a generated report).</p>
+    {% else %}
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Scored sessions</div><div class="value">{{ scored|length }}</div></div>
+      <div class="kpi"><div class="label">Average score</div><div class="value">{{ avg_score }}</div></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>Score distribution</h3>
+        <div class="chart-wrap"><canvas id="histChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Score by risk label</h3>
+        <div class="chart-wrap"><canvas id="boxChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-bottom:1.5rem;">
+      <h3>Tab switches vs integrity score</h3>
+      <div class="chart-wrap tall"><canvas id="scatterChart"></canvas></div>
+    </div>
+    <div class="analytics-table-wrap">
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>session_id</th>
+            <th>candidate_name</th>
+            <th>exam_title</th>
+            <th>score</th>
+            <th>risk</th>
+            <th>tabs</th>
+            <th>face_abs_s</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in scored|sort(attribute='integrity_score') %}
+          <tr>
+            <td>{{ a.session_id }}</td>
+            <td>{{ a.candidate_name }}</td>
+            <td>{{ a.exam_title }}</td>
+            <td>{{ a.integrity_score|round(1) }}</td>
+            <td><span class="badge-status badge-risk-{{ a.risk_label }}">{{ a.risk_label }}</span></td>
+            <td>{{ a.tab_switch_count }}</td>
+            <td>{{ a.face_absent_seconds }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if page == 'events' %}
+    <h1>Event analytics</h1>
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Total events</div><div class="value">{{ total_events }}</div></div>
+      <div class="kpi"><div class="label">Flagged events</div><div class="value">{{ flagged_count }}</div></div>
+    </div>
+    {% if event_type_labels %}
+    <div class="chart-card" style="margin-bottom:1.5rem;">
+      <h3>Events by type</h3>
+      <div class="chart-wrap"><canvas id="eventBarChart"></canvas></div>
+    </div>
+    {% else %}
+    <p class="muted">No events logged yet.</p>
+    {% endif %}
+    <h2>Recent events</h2>
+    <div class="analytics-table-wrap">
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>session_id</th>
+            <th>event_type</th>
+            <th>severity</th>
+            <th>timestamp</th>
+            <th>duration_s</th>
+            <th>flagged</th>
+            <th>details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in recent_events %}
+          <tr>
+            <td>{{ e.id }}</td>
+            <td>{{ e.session_id }}</td>
+            <td>{{ e.event_type }}</td>
+            <td>{{ e.severity }}</td>
+            <td>{{ e.timestamp }}</td>
+            <td>{{ e.duration_seconds }}</td>
+            <td>{% if e.is_flagged %}✓{% else %}—{% endif %}</td>
+            <td>{{ e.details }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" class="muted">No events.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if page == 'clustering' %}
+    <h1>Behaviour clustering (K-Means)</h1>
+    <p class="muted">
+      K-Means groups exam sessions by proctoring behaviour (tab switches, face absence, focus loss, etc.).
+      This is <strong>not</strong> used to auto-fail a student during the live exam — it helps invigilators see patterns across the cohort after exams.
+    </p>
+    <form method="get" action="{{ url_for('admin.analytics') }}" style="margin-bottom:1rem;">
+      <input type="hidden" name="page" value="clustering">
+      <label class="muted" for="k">Number of behaviour clusters (k):</label>
+      <select class="dark-select" name="k" id="k" onchange="this.form.submit()">
+        {% for i in range(2, 6) %}
+        <option value="{{ i }}" {% if k == i %}selected{% endif %}>{{ i }}</option>
+        {% endfor %}
+      </select>
+    </form>
+    {% if not ok %}
+    <p class="muted">{{ message }}</p>
+    {% else %}
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>Tab switches vs face-absent time</h3>
+        <div class="chart-wrap tall"><canvas id="clusterScatter1"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Tab switches vs integrity score</h3>
+        <div class="chart-wrap tall"><canvas id="clusterScatter2"></canvas></div>
+      </div>
+    </div>
+    <h2>Cluster averages</h2>
+    <div class="analytics-table-wrap">
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>cluster</th>
+            <th>profile</th>
+            <th>n</th>
+            <th>avg_score</th>
+            <th>avg_tabs</th>
+            <th>avg_face_abs_s</th>
+            <th>avg_focus</th>
+            <th>avg_multi</th>
+            <th>avg_audio</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in summary %}
+          <tr>
+            <td>{{ s.cluster }}</td>
+            <td>{{ s.profile }}</td>
+            <td>{{ s.n }}</td>
+            <td>{{ s.avg_score }}</td>
+            <td>{{ s.avg_tab_switch }}</td>
+            <td>{{ s.avg_face_absent_s }}</td>
+            <td>{{ s.avg_focus_loss }}</td>
+            <td>{{ s.avg_multi_face }}</td>
+            <td>{{ s.avg_audio_spike }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <h2>Profile labels</h2>
+    <pre style="background:#161b22;border:1px solid #2d3340;border-radius:10px;padding:1rem;color:#e2e8f0;">{{ cluster_labels | default({}) | tojson }}</pre>
+    <h2>Assignments</h2>
+    <div class="analytics-table-wrap">
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>session_id</th>
+            <th>candidate</th>
+            <th>cluster</th>
+            <th>profile</th>
+            <th>score</th>
+            <th>risk</th>
+            <th>tabs</th>
+            <th>face_abs_s</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in points %}
+          <tr>
+            <td>{{ p.session_id }}</td>
+            <td>{{ p.candidate_name }}</td>
+            <td>{{ p.cluster }}</td>
+            <td>{{ p.profile }}</td>
+            <td>{{ p.score|round(1) }}</td>
+            <td>{{ p.risk_label }}</td>
+            <td>{{ p.tab_switch_count }}</td>
+            <td>{{ p.face_absent_seconds }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if page == 'risk' %}
+    <h1>Risk profiling</h1>
+    <div class="chart-card" style="margin-bottom:1.5rem;max-width:520px;">
+      <h3>Sessions by risk label</h3>
+      <div class="chart-wrap"><canvas id="riskBarChart"></canvas></div>
+    </div>
+    <h2>High-risk sessions</h2>
+    <div class="analytics-table-wrap">
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>session_id</th>
+            <th>candidate_name</th>
+            <th>exam_title</th>
+            <th>score</th>
+            <th>tabs</th>
+            <th>face_abs_s</th>
+            <th>multi_face</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in high_risk_sessions %}
+          <tr>
+            <td>{{ a.session_id }}</td>
+            <td>{{ a.candidate_name }}</td>
+            <td>{{ a.exam_title }}</td>
+            <td>{{ a.integrity_score|round(1) if a.integrity_score is not none else '—' }}</td>
+            <td>{{ a.tab_switch_count }}</td>
+            <td>{{ a.face_absent_seconds }}</td>
+            <td>{{ a.multi_face_count }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="muted">No high-risk sessions.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if page == 'drilldown' %}
+    <h1>Session drill-down</h1>
+    <form method="get" action="{{ url_for('admin.analytics') }}" style="margin-bottom:1.25rem;">
+      <input type="hidden" name="page" value="drilldown">
+      <label class="muted" for="session_id">Session</label>
+      <select class="dark-select" name="session_id" id="session_id" onchange="this.form.submit()">
+        {% for sid in session_ids %}
+        <option value="{{ sid }}" {% if selected_id == sid %}selected{% endif %}>#{{ sid }}</option>
+        {% endfor %}
+      </select>
+    </form>
+    {% if selected %}
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Score</div><div class="value">{% if selected.integrity_score is not none %}{{ selected.integrity_score|round(1) }}{% else %}—{% endif %}</div></div>
+      <div class="kpi"><div class="label">Risk</div><div class="value">{{ selected.risk_label or '—' }}</div></div>
+      <div class="kpi"><div class="label">Candidate</div><div class="value" style="font-size:1rem;">{{ selected.candidate_name }}</div></div>
+      <div class="kpi"><div class="label">Exam</div><div class="value" style="font-size:0.95rem;">{{ selected.exam_title }}</div></div>
+    </div>
+    {% if ai_summary %}
+    <div class="ai-box">
+      <div class="muted" style="margin-bottom:0.35rem;">AI report {% if model_used %}· {{ model_used }}{% endif %}</div>
+      {{ ai_summary }}
+    </div>
+    {% endif %}
+    <h2>Events for this session</h2>
+    <div class="analytics-table-wrap">
+      <table class="analytics-table">
+        <thead>
+          <tr>
+            <th>event_type</th>
+            <th>severity</th>
+            <th>timestamp</th>
+            <th>duration_s</th>
+            <th>flagged</th>
+            <th>details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in events %}
+          <tr>
+            <td>{{ e.event_type }}</td>
+            <td>{{ e.severity }}</td>
+            <td>{{ e.timestamp }}</td>
+            <td>{{ e.duration_seconds }}</td>
+            <td>{% if e.is_flagged %}✓{% else %}—{% endif %}</td>
+            <td>{{ e.details }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="muted">No events for this session.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="muted">No sessions available.</p>
+    {% endif %}
+    {% endif %}
+
+    {% if page == 'exports' %}
+    <h1>Exports</h1>
+    <p class="muted">Download CSV / JSON exports generated from the live database.</p>
+    <form method="post" action="{{ url_for('admin.refresh_exports') }}" style="margin-bottom:1.25rem;">
+      <button type="submit" class="btn-dark">↻ Refresh exports from DB</button>
+    </form>
+    {% for name, meta in files.items() %}
+    <div class="export-card">
+      <div>
+        <div class="name">{{ name }}</div>
+        <div class="meta">
+          {% if meta.exists %}
+            Ready · {{ (meta.size / 1024)|round(1) }} KB
+          {% else %}
+            Not generated yet
+          {% endif %}
+        </div>
+      </div>
+      {% if meta.exists %}
+      <a class="btn-dark" href="{{ url_for('admin.download_export', filename=name) }}">Download</a>
+      {% else %}
+      <span class="muted">⏳ pending</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  const page = {{ page | tojson }};
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.borderColor = '#2d3340';
+
+  if (page === 'overview') {
+    const riskLabels = {{ risk_distribution['labels'] | tojson }};
+    const riskValues = {{ risk_distribution['values'] | tojson }};
+    const riskColors = {{ risk_distribution['colors'] | tojson }};
+    const riskPercents = {{ risk_distribution['percents'] | tojson }};
+    const catLabels = {{ avg_by_category | map(attribute='category') | list | tojson }};
+    const catValues = {{ avg_by_category | map(attribute='avg_score') | list | tojson }};
+
+    const riskCtx = document.getElementById('riskChart');
+    if (riskCtx && riskValues.some(v => v > 0)) {
+      new Chart(riskCtx, {
+        type: 'doughnut',
+        data: {
+          labels: riskLabels.map((l, i) => l + ' (' + riskPercents[i] + '%)'),
+          datasets: [{ data: riskValues, backgroundColor: riskColors, borderWidth: 0, hoverOffset: 6 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: '55%',
+          plugins: { legend: { position: 'right', labels: { color: '#e2e8f0', usePointStyle: true, pointStyle: 'rect', padding: 14, font: { size: 12 } } } }
+        }
+      });
+    }
+
+    const catCtx = document.getElementById('categoryChart');
+    if (catCtx && catLabels.length) {
+      new Chart(catCtx, {
+        type: 'bar',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            label: 'Avg Score (%)',
+            data: catValues,
+            backgroundColor: catLabels.map((_, i) => i === catLabels.length - 1 ? '#1d4ed8' : '#e2e8f0'),
+            borderRadius: 4, maxBarThickness: 70
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 100, ticks: { color: '#94a3b8' }, grid: { color: '#2d3340' } },
+            x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+  }
+
+  if (page === 'scores') {
+    const histLabels = {{ hist_labels | default([]) | tojson }};
+    const histCounts = {{ hist_counts | default([]) | tojson }};
+    const scatter = {{ scatter | default([]) | tojson }};
+    const boxByRisk = {{ box_by_risk | default({}) | tojson }};
+
+    const histCtx = document.getElementById('histChart');
+    if (histCtx) {
+      new Chart(histCtx, {
+        type: 'bar',
+        data: { labels: histLabels, datasets: [{ label: 'Sessions', data: histCounts, backgroundColor: '#2563eb', borderRadius: 4 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { grid: { display: false } } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    const boxCtx = document.getElementById('boxChart');
+    if (boxCtx) {
+      const order = ['Low', 'Medium', 'High'];
+      const colors = { Low: '#16a34a', Medium: '#d97706', High: '#dc2626' };
+      const avgs = order.map(function(r) {
+        var arr = boxByRisk[r] || [];
+        if (!arr.length) return 0;
+        return arr.reduce(function(a, b) { return a + b; }, 0) / arr.length;
+      });
+      new Chart(boxCtx, {
+        type: 'bar',
+        data: { labels: order, datasets: [{ label: 'Avg score', data: avgs, backgroundColor: order.map(function(r){ return colors[r]; }), borderRadius: 6, maxBarThickness: 60 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, max: 100 }, x: { grid: { display: false } } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    const scCtx = document.getElementById('scatterChart');
+    if (scCtx && scatter.length) {
+      var riskColor = { Low: '#16a34a', Medium: '#d97706', High: '#dc2626' };
+      var groups = { Low: [], Medium: [], High: [] };
+      scatter.forEach(function(p) {
+        var r = p.risk || 'Low';
+        if (!groups[r]) groups[r] = [];
+        groups[r].push({ x: p.x, y: p.y });
+      });
+      new Chart(scCtx, {
+        type: 'scatter',
+        data: {
+          datasets: Object.keys(groups).map(function(r) {
+            return { label: r, data: groups[r], backgroundColor: riskColor[r] || '#94a3b8' };
+          })
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: 'Tab switches' }, beginAtZero: true },
+            y: { title: { display: true, text: 'Integrity score' }, beginAtZero: true, max: 100 }
+          }
+        }
+      });
+    }
+  }
+
+  if (page === 'events') {
+    const labels = {{ event_type_labels | default([]) | tojson }};
+    const values = {{ event_type_values | default([]) | tojson }};
+    const ctx = document.getElementById('eventBarChart');
+    if (ctx && labels.length) {
+      new Chart(ctx, {
+        type: 'bar',
+        data: { labels: labels, datasets: [{ label: 'Count', data: values, backgroundColor: '#3b82f6', borderRadius: 4 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true }, x: { grid: { display: false } } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+  }
+
+  if (page === 'clustering') {
+    const points = {{ points | default([]) | tojson }};
+    const profiles = [];
+    points.forEach(function(p) { if (profiles.indexOf(p.profile) === -1) profiles.push(p.profile); });
+    const palette = ['#22c55e', '#f59e0b', '#ef4444', '#3b82f6', '#a855f7'];
+
+    function makeScatter(canvasId, xKey, yKey, xTitle, yTitle) {
+      const ctx = document.getElementById(canvasId);
+      if (!ctx || !points.length) return;
+      new Chart(ctx, {
+        type: 'scatter',
+        data: {
+          datasets: profiles.map(function(prof, i) {
+            return {
+              label: prof,
+              data: points.filter(function(p) { return p.profile === prof; }).map(function(p) {
+                return { x: p[xKey], y: p[yKey] };
+              }),
+              backgroundColor: palette[i % palette.length]
+            };
+          })
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: xTitle }, beginAtZero: true },
+            y: { title: { display: true, text: yTitle }, beginAtZero: true }
+          }
+        }
+      });
+    }
+    makeScatter('clusterScatter1', 'tab_switch_count', 'face_absent_seconds', 'Tab switches', 'Face absent (s)');
+    makeScatter('clusterScatter2', 'tab_switch_count', 'score', 'Tab switches', 'Integrity score');
+  }
+
+  if (page === 'risk') {
+    const labels = {{ risk_labels | default([]) | tojson }};
+    const counts = {{ risk_counts | default([]) | tojson }};
+    const colors = {{ risk_colors | default([]) | tojson }};
+    const ctx = document.getElementById('riskBarChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'bar',
+        data: { labels: labels, datasets: [{ data: counts, backgroundColor: colors, borderRadius: 6, maxBarThickness: 70 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { grid: { display: false } } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+  }
+})();
+</script>
+{% endblock %}

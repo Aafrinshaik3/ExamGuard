@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+{% block title %}My Performance &amp; Progress — ExamGuard{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-2" style="flex-wrap:wrap;gap:0.75rem;">
+  <div>
+    <h1 style="margin:0;font-size:1.5rem;">My Performance &amp; Progress</h1>
+    <p class="text-muted" style="margin:0.25rem 0 0;font-size:0.9rem;">
+      Historical test scores, proctoring integrity analytics, and personalized guidance
+    </p>
+  </div>
+  <div>
+    <a href="{{ url_for('exam.candidate_home') }}" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="eg-card mb-2" style="padding:0.85rem 1.25rem;">
+  <form method="GET" action="{{ url_for('exam.progress') }}" class="filter-form" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+    <div style="display:flex;align-items:center;gap:0.4rem;">
+      <label style="font-weight:600;font-size:0.85rem;margin:0;">Category:</label>
+      <select name="category" class="form-control" style="padding:0.35rem 0.65rem;font-size:0.85rem;width:auto;" onchange="this.form.submit()">
+        <option value="All Categories">All Categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:0.4rem;">
+      <label style="font-weight:600;font-size:0.85rem;margin:0;">Difficulty:</label>
+      <select name="difficulty" class="form-control" style="padding:0.35rem 0.65rem;font-size:0.85rem;width:auto;" onchange="this.form.submit()">
+        <option value="All Levels">All Levels</option>
+        {% for diff in difficulties %}
+        <option value="{{ diff }}" {% if selected_difficulty == diff %}selected{% endif %}>{{ diff }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <a href="{{ url_for('exam.progress') }}" class="btn btn-outline btn-sm">Reset Filters</a>
+  </form>
+</div>
+
+<!-- Summary Cards -->
+<div class="score-grid mb-2">
+  <div class="score-card">
+    <div class="num" style="font-size:1.6rem;">{{ exams_attempted }}</div>
+    <div class="lbl">Exams Attempted</div>
+  </div>
+  <div class="score-card">
+    <div class="num" style="font-size:1.6rem;color:var(--primary);">
+      {% if has_results %}{{ avg_test_score }}%{% else %}—{% endif %}
+    </div>
+    <div class="lbl">Avg Test Score</div>
+  </div>
+  <div class="score-card">
+    <div class="num" style="font-size:1.6rem;color:#16a34a;">
+      {% if has_results %}{{ best_score }}%{% else %}—{% endif %}
+    </div>
+    <div class="lbl">Best Score</div>
+  </div>
+  <div class="score-card">
+    <div class="num" style="font-size:1.6rem;">
+      {% if has_results %}{{ latest_score }}%{% else %}—{% endif %}
+    </div>
+    <div class="lbl">Latest Score</div>
+  </div>
+  <div class="score-card">
+    <div class="num" style="font-size:1.6rem;color:#2563eb;">
+      {% if exams_attempted > 0 %}{{ avg_integrity_score }}{% else %}—{% endif %}
+    </div>
+    <div class="lbl">Avg Integrity Score</div>
+  </div>
+  <div class="score-card">
+    <div class="num" style="font-size:1.6rem;color:{% if high_risk_count > 0 %}var(--danger){% else %}var(--muted){% endif %};">
+      {{ high_risk_count }}
+    </div>
+    <div class="lbl">High Risk Flagged</div>
+  </div>
+</div>
+
+{% if exams_attempted > 0 %}
+
+<!-- Charts Section -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:1.25rem;margin-bottom:1.5rem;">
+  <!-- Pie Chart 1: Answer Performance -->
+  <div class="eg-card">
+    <h3 class="section-title" style="font-size:1.05rem;margin-bottom:0.75rem;">Answer Performance</h3>
+    {% if has_results and (total_correct + total_incorrect + total_unanswered > 0) %}
+    <div style="max-height:240px;position:relative;margin:0 auto;width:240px;">
+      <canvas id="answerPieChart"></canvas>
+    </div>
+    <div class="text-center mt-1" style="font-size:0.85rem;color:var(--muted);">
+      Correct: <strong>{{ total_correct }}</strong> · Incorrect: <strong>{{ total_incorrect }}</strong> · Unanswered: <strong>{{ total_unanswered }}</strong>
+    </div>
+    {% else %}
+    <p class="text-muted" style="font-size:0.9rem;margin:1rem 0;">Complete an assessment to see correct vs incorrect answer breakdown.</p>
+    {% endif %}
+  </div>
+
+  <!-- Pie Chart 2: Exam Risk Distribution -->
+  <div class="eg-card">
+    <h3 class="section-title" style="font-size:1.05rem;margin-bottom:0.75rem;">Proctoring Risk Distribution</h3>
+    <div style="max-height:240px;position:relative;margin:0 auto;width:240px;">
+      <canvas id="riskPieChart"></canvas>
+    </div>
+    <div class="text-center mt-1" style="font-size:0.85rem;color:var(--muted);">
+      Low Risk: <strong>{{ risk_counts.Low }}</strong> · Medium Risk: <strong>{{ risk_counts.Medium }}</strong> · High Risk: <strong>{{ risk_counts.High }}</strong>
+    </div>
+  </div>
+</div>
+
+<!-- Score Progress Over Time -->
+<div class="eg-card mb-2">
+  <h3 class="section-title" style="font-size:1.05rem;margin-bottom:0.75rem;">Performance Over Time</h3>
+  <div style="height:260px;position:relative;">
+    <canvas id="progressLineChart"></canvas>
+  </div>
+</div>
+
+<!-- Category & Difficulty Breakdown -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:1.25rem;margin-bottom:1.5rem;">
+  <!-- Category-wise Progress -->
+  <div class="eg-card" style="padding:0;overflow:hidden;">
+    <div style="padding:1rem 1.25rem 0.5rem;border-bottom:1px solid var(--border);">
+      <h3 class="section-title" style="font-size:1.05rem;margin:0;">Category-wise Performance</h3>
+    </div>
+    {% if category_stats %}
+    <table class="eg-table" style="font-size:0.88rem;">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Attempts</th>
+          <th>Avg Score</th>
+          <th>Best Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cat_name, stats in category_stats.items() %}
+        <tr>
+          <td><strong>{{ cat_name }}</strong></td>
+          <td>{{ stats.attempts }}</td>
+          <td>{{ stats.avg_score }}%</td>
+          <td>{{ stats.best_score }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted" style="padding:1rem;margin:0;">No category performance data.</p>
+    {% endif %}
+  </div>
+
+  <!-- Difficulty-wise Progress -->
+  <div class="eg-card" style="padding:0;overflow:hidden;">
+    <div style="padding:1rem 1.25rem 0.5rem;border-bottom:1px solid var(--border);">
+      <h3 class="section-title" style="font-size:1.05rem;margin:0;">Difficulty Level Breakdown</h3>
+    </div>
+    {% if difficulty_stats %}
+    <table class="eg-table" style="font-size:0.88rem;">
+      <thead>
+        <tr>
+          <th>Difficulty</th>
+          <th>Attempts</th>
+          <th>Avg Score</th>
+          <th>Best Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for diff_level in ['Easy', 'Medium', 'Hard'] %}
+        {% if diff_level in difficulty_stats %}
+        {% set dstats = difficulty_stats[diff_level] %}
+        <tr>
+          <td><span class="badge badge-difficulty-{{ diff_level|lower }}">{{ diff_level }}</span></td>
+          <td>{{ dstats.attempts }}</td>
+          <td>{{ dstats.avg_score }}%</td>
+          <td>{{ dstats.best_score }}%</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted" style="padding:1rem;margin:0;">No difficulty performance data.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Personalized Tips for Improvement -->
+<div class="eg-card mb-2" style="border-left:4px solid #2563eb;background:#f8fafc;">
+  <h3 class="section-title" style="font-size:1.1rem;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem;">
+    💡 Tips to Improve
+  </h3>
+  <ul style="margin:0;padding-left:1.2rem;line-height:1.65;font-size:0.92rem;color:#1e293b;">
+    {% for tip in personalized_tips %}
+    <li style="margin-bottom:0.4rem;">{{ tip }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% else %}
+<div class="eg-card text-center" style="padding:3rem 1.5rem;">
+  <h3 style="margin:0 0 0.5rem;color:var(--muted);">No Completed Assessments Yet</h3>
+  <p class="text-muted" style="max-width:480px;margin:0 auto 1.25rem;font-size:0.92rem;">
+    Once you complete an assessment, your test scores, proctoring integrity analytics, category insights, and personalized tips will appear here.
+  </p>
+  <a href="{{ url_for('exam.candidate_home') }}" class="btn btn-primary">View Available Tests</a>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+{% if exams_attempted > 0 %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  {% if has_results and (total_correct + total_incorrect + total_unanswered > 0) %}
+  // Answer Performance Pie Chart
+  const ctxAnswer = document.getElementById('answerPieChart').getContext('2d');
+  new Chart(ctxAnswer, {
+    type: 'doughnut',
+    data: {
+      labels: ['Correct', 'Incorrect', 'Unanswered'],
+      datasets: [{
+        data: [{{ total_correct }}, {{ total_incorrect }}, {{ total_unanswered }}],
+        backgroundColor: ['#16a34a', '#dc2626', '#94a3b8'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+  {% endif %}
+
+  // Risk Distribution Pie Chart
+  const ctxRisk = document.getElementById('riskPieChart').getContext('2d');
+  new Chart(ctxRisk, {
+    type: 'doughnut',
+    data: {
+      labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+      datasets: [{
+        data: [{{ risk_counts.Low }}, {{ risk_counts.Medium }}, {{ risk_counts.High }}],
+        backgroundColor: ['#16a34a', '#d97706', '#dc2626'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+
+  // Score Progress Over Time Line Chart
+  const ctxProgress = document.getElementById('progressLineChart').getContext('2d');
+  new Chart(ctxProgress, {
+    type: 'line',
+    data: {
+      labels: {{ timeline_labels|tojson }},
+      datasets: [
+        {
+          label: 'Test Score (%)',
+          data: {{ timeline_test_scores|tojson }},
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.1)',
+          fill: true,
+          tension: 0.2,
+          pointRadius: 4,
+          pointBackgroundColor: '#2563eb'
+        },
+        {
+          label: 'Integrity Score (out of 100)',
+          data: {{ timeline_integrity_scores|tojson }},
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22, 163, 74, 0.05)',
+          borderDash: [5, 5],
+          tension: 0.2,
+          pointRadius: 4,
+          pointBackgroundColor: '#16a34a'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          min: 0,
+          max: 100,
+          ticks: { stepSize: 20 }
+        }
+      },
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+});
+</script>
+{% endif %}
+{% endblock %}

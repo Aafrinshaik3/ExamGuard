@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Live Proctoring Room — ExamGuard Admin{% endblock %}
+{% block content %}
+<div class="admin-header">
+  <div>
+    <div class="admin-badge" style="background:#dc2626;color:#fff;">● LIVE PROCTORING</div>
+    <h1 style="margin:0.25rem 0 0;font-size:1.6rem;">Real-Time Voice &amp; Face Monitoring</h1>
+    <p class="text-muted" style="margin:0.25rem 0 0;font-size:0.9rem;">
+      Live proctoring console monitoring active exam sessions, microphone audio spikes, and face presence.
+    </p>
+  </div>
+  <div style="display:flex;align-items:center;gap:0.75rem;">
+    <div id="syncIndicator" class="sync-pill">
+      <span class="live-dot-pulse">●</span> Auto-syncing: <span id="syncTime">Connecting…</span>
+    </div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline btn-sm">← Back to Overview</a>
+  </div>
+</div>
+
+<div class="live-layout mt-2">
+  <!-- Left/Main: Active Students Grid -->
+  <div class="live-main">
+    <div class="live-section-header">
+      <h2 class="section-title" style="margin:0;">
+        Active Candidates (<span id="activeCount">0</span>)
+      </h2>
+      <span class="text-muted" style="font-size:0.82rem;">Updates every 3 seconds</span>
+    </div>
+
+    <div id="candidatesGrid" class="active-grid mt-1">
+      <!-- Injected by JavaScript -->
+    </div>
+
+    <div id="noActiveBox" class="eg-card text-center" style="display:none;padding:3rem 1.5rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">📡</div>
+      <h3 style="margin:0 0 0.5rem;">No Active Exam Sessions Right Now</h3>
+      <p class="text-muted" style="max-width:520px;margin:0 auto 1.5rem;font-size:0.92rem;">
+        When a student starts an assessment from the Student Portal, their real-time webcam face status and microphone voice detection will appear here live.
+      </p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('exam.candidate_home') }}" target="_blank" class="btn btn-primary">
+          Open Student Portal in New Window
+        </a>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline">
+          Return to Admin Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Live Real-Time Event Feed -->
+  <aside class="live-aside">
+    <div class="eg-card" style="padding:1.25rem;height:100%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <h3 style="margin:0;font-size:1.05rem;">Live Proctor Feed</h3>
+        <span class="badge badge-active" id="feedStatus">Live</span>
+      </div>
+      <p class="text-muted" style="font-size:0.75rem;margin:0 0 0.75rem;">
+        Incoming stream of audio spikes, face absences, multi-face detections, and tab switches.
+      </p>
+      <div class="event-feed live-ticker-feed" id="liveAlertsFeed">
+        <div class="event-item text-muted">Listening for live exam telemetry…</div>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const grid = document.getElementById('candidatesGrid');
+const noActiveBox = document.getElementById('noActiveBox');
+const activeCount = document.getElementById('activeCount');
+const syncTime = document.getElementById('syncTime');
+const alertsFeed = document.getElementById('liveAlertsFeed');
+
+let seenAlertIds = new Set();
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
+}
+
+function pollLiveFeed() {
+  fetch('/api/admin/live-feed')
+    .then(r => r.json())
+    .then(data => {
+      syncTime.textContent = data.timestamp || new Date().toLocaleTimeString();
+      activeCount.textContent = data.active_count;
+
+      if (!data.sessions || data.sessions.length === 0) {
+        grid.innerHTML = '';
+        noActiveBox.style.display = 'block';
+      } else {
+        noActiveBox.style.display = 'none';
+        renderCandidates(data.sessions);
+      }
+
+      if (data.alerts && data.alerts.length > 0) {
+        renderAlerts(data.alerts);
+      }
+    })
+    .catch(err => {
+      syncTime.textContent = 'Reconnecting…';
+    });
+}
+
+function renderCandidates(sessions) {
+  grid.innerHTML = sessions.map(s => {
+    // Determine Face Status
+    let faceClass = 'status-good';
+    let faceText = '✓ Face Present &amp; Verified';
+    if (s.face_absent_active) {
+      faceClass = 'status-bad pulse-alert';
+      faceText = '⚠️ FACE ABSENT';
+    } else if (s.multi_face_active) {
+      faceClass = 'status-bad pulse-alert';
+      faceText = '⚠️ MULTIPLE FACES';
+    }
+
+    // Determine Audio / Voice Status
+    let audioClass = 'status-good';
+    let audioText = '✓ Audio Normal';
+    if (s.audio_spike_active) {
+      audioClass = 'status-bad pulse-alert';
+      audioText = '🎙️ VOICE / AUDIO SPIKE DETECTED';
+    }
+
+    // Photo preview
+    const photoImg = s.candidate_photo 
+      ? `<img src="/static/${s.candidate_photo}" alt="${s.candidate_name}" class="cand-thumb" onerror="this.style.display='none'">`
+      : `<div class="cand-thumb-placeholder">👤</div>`;
+
+    return `
+      <div class="eg-card student-proctor-card" id="session-card-${s.session_id}">
+        <div class="sp-top">
+          <div class="sp-cand">
+            ${photoImg}
+            <div>
+              <h4 class="sp-name">${s.candidate_name}</h4>
+              <div class="sp-email">${s.candidate_email}</div>
+              <div class="sp-exam">📝 ${s.exam_title} · ⏱ ${s.elapsed_formatted}</div>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-outline-danger btn-sm" onclick="terminateSession(${s.session_id}, '${s.candidate_name}')">
+              Terminate Exam
+            </button>
+          </div>
+        </div>
+
+        <!-- Real-Time Voice and Face Telemetry Badges -->
+        <div class="telemetry-bar mt-1">
+          <div class="telemetry-item">
+            <span class="telemetry-label">Face Tracker</span>
+            <span class="status-pill ${faceClass}">${faceText}</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">Voice / Mic Monitor</span>
+            <span class="status-pill ${audioClass}">${audioText}</span>
+          </div>
+        </div>
+
+        <!-- Violation Counters -->
+        <div class="violation-counters mt-1">
+          <div class="vc-pill ${s.face_absent_count >= 3 ? 'vc-danger' : ''}">
+            <span class="vc-num">${s.face_absent_count}</span>
+            <span class="vc-lbl">Face Absent</span>
+          </div>
+          <div class="vc-pill ${s.tab_switch_count >= 3 ? 'vc-danger' : ''}">
+            <span class="vc-num">${s.tab_switch_count}</span>
+            <span class="vc-lbl">Tab Switches</span>
+          </div>
+          <div class="vc-pill ${s.audio_spike_count > 0 ? 'vc-warn' : ''}">
+            <span class="vc-num">${s.audio_spike_count}</span>
+            <span class="vc-lbl">Audio Spikes</span>
+          </div>
+          <div class="vc-pill ${s.violation_count >= s.max_violations - 1 ? 'vc-danger' : ''}">
+            <span class="vc-num">${s.violation_count}/${s.max_violations}</span>
+            <span class="vc-lbl">Total Violations</span>
+          </div>
+        </div>
+
+        <div class="sp-footer mt-1">
+          <span class="text-muted" style="font-size:0.75rem;">
+            Last event: <strong>${s.latest_event_type}</strong> at ${s.latest_event_time || '—'}
+          </span>
+          <a href="/session/${s.session_id}/report" target="_blank" class="text-link" style="font-size:0.75rem;">
+            Open Live Report ↗
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAlerts(alerts) {
+  alertsFeed.innerHTML = alerts.map(a => {
+    const isVoice = a.event_type === 'audio_spike';
+    const isFace = a.event_type.includes('face');
+    const isTab = a.event_type === 'tab_switch';
+    
+    let icon = '⚠';
+    if (isVoice) icon = '🎙️';
+    else if (isFace) icon = '👤';
+    else if (isTab) icon = '🔀';
+
+    return `
+      <div class="event-item ${a.severity === 'critical' || a.severity === 'warning' ? 'flagged' : ''}">
+        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);">
+          <span>${icon} <strong>${a.candidate_name}</strong></span>
+          <span>${a.time}</span>
+        </div>
+        <div style="font-weight:600;font-size:0.82rem;margin-top:2px;">
+          ${a.event_type}
+        </div>
+        ${a.details ? `<div style="font-size:0.75rem;color:var(--muted);">${a.details}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function terminateSession(sessionId, candidateName) {
+  if (!confirm(`Are you sure you want to forcibly terminate the assessment for ${candidateName}? This will close their session and generate a permanent integrity violation report.`)) {
+    return;
+  }
+
+  fetch('/api/admin/terminate-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id: sessionId })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      alert(data.message);
+      pollLiveFeed();
+    } else {
+      alert(data.error || 'Failed to terminate session');
+    }
+  })
+  .catch(err => alert('Network error terminating session'));
+}
+
+// Start polling every 3 seconds
+pollLiveFeed();
+const liveInterval = setInterval(pollLiveFeed, 3000);
+window.addEventListener('beforeunload', () => clearInterval(liveInterval));
+</script>
+{% endblock %}

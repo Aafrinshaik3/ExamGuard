@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block title %}Assessment &amp; Integrity Report #{{ session.id }} — ExamGuard{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-2" style="flex-wrap:wrap;gap:0.75rem;">
+  <div>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <span class="badge badge-admin" style="font-size:0.75rem;">Session #{{ session.id }}</span>
+      {% if session.status == 'submitted' %}
+        <span class="badge badge-submitted">Completed · Submitted</span>
+      {% elif session.status == 'terminated' %}
+        <span class="badge badge-high">Auto-Terminated</span>
+      {% else %}
+        <span class="badge badge-active">{{ session.status|title }}</span>
+      {% endif %}
+    </div>
+    <h1 style="margin:0.25rem 0 0;font-size:1.5rem;">
+      {{ session.exam_title }}
+    </h1>
+    <p class="text-muted" style="margin:0.2rem 0 0;font-size:0.9rem;">
+      Candidate: <strong>{{ session.candidate.full_name if session.candidate else 'Candidate' }}</strong> 
+      {% if session.candidate and session.candidate.college %} · {{ session.candidate.college }}{% endif %}
+      {% if session.candidate and session.candidate.domain %} · {{ session.candidate.domain }} ({{ session.candidate.department }}){% endif %}
+    </p>
+  </div>
+  <div>
+    {% if current_user.role in ('invigilator', 'admin') %}
+      <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline btn-sm">← Back to Invigilator Console</a>
+    {% else %}
+      <a href="{{ url_for('exam.candidate_home') }}" class="btn btn-outline btn-sm">← Back to My Exams</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if session.status == 'terminated' %}
+<div class="active-alert-bar mb-2" style="background:#fef2f2;border-left:4px solid var(--danger);">
+  <div class="aab-text" style="color:#991b1b;">
+    <strong>⚠️ Session Auto-Terminated:</strong> This assessment was automatically closed after exceeding proctoring rule violation thresholds. Both academic marks and integrity telemetry have been recorded for review.
+  </div>
+</div>
+{% endif %}
+
+<!-- Dual Score Header: Assignment Marks + Integrity Score -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:1.25rem;margin-bottom:1.5rem;">
+  
+  <!-- 1. ASSIGNMENT ACADEMIC MARKS CARD -->
+  <div class="eg-card" style="border-top:4px solid var(--primary);box-shadow:0 2px 8px rgba(37,99,235,0.08);">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+      <div>
+        <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--primary);letter-spacing:0.5px;">
+          📝 Academic Evaluation
+        </span>
+        <h2 style="margin:0.2rem 0 0;font-size:1.25rem;font-weight:700;">Assignment Marks</h2>
+      </div>
+      <div>
+        {% if grade_details and grade_details.passed %}
+          <span class="badge badge-low" style="font-size:0.82rem;font-weight:700;background:#dcfce7;color:#15803d;padding:0.35rem 0.65rem;">
+            ✓ PASSED
+          </span>
+        {% elif grade_details %}
+          <span class="badge badge-high" style="font-size:0.82rem;font-weight:700;background:#fee2e2;color:#b91c1c;padding:0.35rem 0.65rem;">
+            NEEDS REVIEW
+          </span>
+        {% else %}
+          <span class="badge" style="font-size:0.82rem;">SUBMITTED</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;gap:0.75rem;margin-bottom:0.75rem;">
+      {% if grade_details %}
+        <div style="font-size:2.4rem;font-weight:800;color:var(--primary);line-height:1;">
+          {{ grade_details.score }}<span style="font-size:1.4rem;color:var(--muted);font-weight:500;">/{{ grade_details.total }}</span>
+        </div>
+        <div style="font-size:1.2rem;font-weight:700;color:var(--text);">
+          ({{ grade_details.percentage }}%)
+        </div>
+      {% elif session.test_score %}
+        <div style="font-size:2.2rem;font-weight:800;color:var(--primary);line-height:1;">
+          {{ session.test_score }}
+        </div>
+      {% else %}
+        <div style="font-size:1.5rem;font-weight:700;color:var(--muted);">
+          Marks Recorded in Audit
+        </div>
+      {% endif %}
+    </div>
+
+    {% if grade_details and grade_details.percentage is defined %}
+    <!-- Score Progress Bar -->
+    <div style="background:#e2e8f0;border-radius:999px;height:10px;overflow:hidden;margin-bottom:0.75rem;">
+      <div style="background:{% if grade_details.percentage >= 75 %}#16a34a{% elif grade_details.percentage >= 40 %}#2563eb{% else %}#dc2626{% endif %};height:100%;width:{{ grade_details.percentage }}%;transition:width 0.5s ease;"></div>
+    </div>
+    {% endif %}
+
+    <div style="font-size:0.82rem;color:var(--muted);display:flex;justify-content:space-between;">
+      <span>Evaluation: Standardized Curriculum MCQs</span>
+      <span>Passing Threshold: 40%</span>
+    </div>
+  </div>
+
+  <!-- 2. AI PROCTORING INTEGRITY SCORE CARD -->
+  <div class="eg-card" style="border-top:4px solid {% if session.integrity_score and session.integrity_score.risk_label == 'Low' %}var(--success){% elif session.integrity_score and session.integrity_score.risk_label == 'Medium' %}var(--warning){% else %}var(--danger){% endif %};box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+      <div>
+        <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:0.5px;">
+          🛡️ Proctoring Telemetry
+        </span>
+        <h2 style="margin:0.2rem 0 0;font-size:1.25rem;font-weight:700;">Integrity Score</h2>
+      </div>
+      <div>
+        {% if session.integrity_score %}
+          <span class="badge badge-{{ session.integrity_score.risk_label|lower }}" style="font-size:0.82rem;font-weight:700;padding:0.35rem 0.65rem;">
+            {{ session.integrity_score.risk_label }} Risk
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;gap:0.75rem;margin-bottom:0.75rem;">
+      {% if session.integrity_score %}
+        <div style="font-size:2.4rem;font-weight:800;color:{% if session.integrity_score.score >= 80 %}var(--success){% elif session.integrity_score.score >= 60 %}var(--warning){% else %}var(--danger){% endif %};line-height:1;">
+          {{ session.integrity_score.score }}<span style="font-size:1.4rem;color:var(--muted);font-weight:500;">/100</span>
+        </div>
+        <div style="font-size:0.88rem;color:var(--muted);">
+          Face presence: {{ (session.integrity_score.face_presence_ratio * 100)|round(1) }}%
+        </div>
+      {% else %}
+        <div style="font-size:1.5rem;font-weight:700;color:var(--muted);">
+          Computing telemetry...
+        </div>
+      {% endif %}
+    </div>
+
+    {% if session.integrity_score %}
+    <!-- Integrity Telemetry Summary Pills -->
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;font-size:0.78rem;">
+      <span class="badge" style="background:#f1f5f9;color:#334155;">
+        🔀 {{ session.integrity_score.tab_switch_count }} Tab Switches
+      </span>
+      <span class="badge" style="background:#f1f5f9;color:#334155;">
+        👤 {{ session.integrity_score.face_absent_seconds }}s Face Absence
+      </span>
+      <span class="badge" style="background:#f1f5f9;color:#334155;">
+        🎙️ {{ session.integrity_score.audio_spike_count or 0 }} Voice Spikes
+      </span>
+      <span class="badge" style="background:#f1f5f9;color:#334155;">
+        👥 {{ session.integrity_score.multi_face_count }} Multi-Face
+      </span>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Question Breakdown (If Available) -->
+{% if grade_details and grade_details.results %}
+<div class="eg-card mb-2" style="padding:0;overflow:hidden;">
+  <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <h3 style="margin:0;font-size:1.1rem;">📝 Assignment Questions &amp; Answer Analysis</h3>
+      <p class="text-muted" style="margin:0.2rem 0 0;font-size:0.82rem;">Detailed itemized review of answers submitted by the student</p>
+    </div>
+    <span class="badge badge-low">{{ grade_details.score }}/{{ grade_details.total }} Correct</span>
+  </div>
+  <table class="eg-table">
+    <thead>
+      <tr>
+        <th style="width:40px;">#</th>
+        <th>Question</th>
+        <th style="width:140px;">Student Answer</th>
+        <th style="width:140px;">Correct Answer</th>
+        <th style="width:110px;">Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in grade_details.results %}
+      <tr style="{% if not r.is_correct %}background:#fff1f2;{% endif %}">
+        <td><strong>{{ loop.index }}</strong></td>
+        <td>
+          <div style="font-weight:600;line-height:1.4;">{{ r.question }}</div>
+        </td>
+        <td>
+          <strong style="color:{% if r.is_correct %}#15803d{% else %}#b91c1c{% endif %};">
+            Option {{ r.candidate_answer }}
+          </strong>
+        </td>
+        <td>
+          <strong style="color:#15803d;">Option {{ r.correct_answer }}</strong>
+        </td>
+        <td>
+          {% if r.is_correct %}
+            <span class="badge badge-low">✓ Correct</span>
+          {% else %}
+            <span class="badge badge-high">✕ Incorrect</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<!-- AI Integrity & Proctoring Summary -->
+{% if session.ai_report %}
+<div class="eg-card mb-2">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+    <h2 class="section-title" style="margin:0;">
+      🤖 AI Proctoring Audit Report
+    </h2>
+    <span class="text-muted" style="font-size:0.8rem;">Evaluated by {{ session.ai_report.model_used|title }} Model</span>
+  </div>
+  <div style="padding:1rem;background:#f8fafc;border-radius:8px;border:1px solid var(--border);line-height:1.65;font-size:0.92rem;">
+    {{ session.ai_report.summary_text }}
+  </div>
+</div>
+{% endif %}
+
+<!-- Chronological Event Log -->
+<div class="eg-card" style="padding:0;overflow:hidden;">
+  <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);">
+    <h3 style="margin:0;font-size:1.05rem;">Chronological Proctoring Telemetry Log</h3>
+    <p class="text-muted" style="margin:0.2rem 0 0;font-size:0.8rem;">Full timestamped event stream captured during examination</p>
+  </div>
+  <table class="eg-table">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Event Classification</th>
+        <th>Severity</th>
+        <th>Duration</th>
+        <th>Details</th>
+        <th>Flagged</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for e in session.events %}
+      <tr style="{{ 'background:#fff1f2;' if e.is_flagged else '' }}">
+        <td class="text-muted" style="font-size:0.82rem;">{{ e.timestamp.strftime('%H:%M:%S') if e.timestamp else '—' }}</td>
+        <td><strong>{{ e.event_type }}</strong></td>
+        <td>
+          {% if e.severity == 'critical' %}
+            <span class="badge badge-high">Critical</span>
+          {% elif e.severity == 'warning' %}
+            <span class="badge badge-medium">Warning</span>
+          {% else %}
+            <span class="badge badge-secondary">Info</span>
+          {% endif %}
+        </td>
+        <td>{{ e.duration_seconds }}s</td>
+        <td style="max-width:320px;font-size:0.82rem;">{{ e.details or '—' }}</td>
+        <td>
+          {% if e.is_flagged %}
+            <span class="badge badge-high">Flagged</span>
+          {% else %}
+            <span class="text-muted">No</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="text-muted text-center" style="padding:1.5rem;">No telemetry events recorded.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="mt-2 mb-2" style="display:flex;gap:0.75rem;">
+  {% if current_user.role in ('invigilator', 'admin') %}
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary">← Return to Invigilator Console</a>
+    <a href="{{ url_for('admin.live_proctor') }}" class="btn btn-outline">Watch Live Proctor Feed</a>
+  {% else %}
+    <a href="{{ url_for('exam.candidate_home') }}" class="btn btn-primary">← Return to My Assessments</a>
+  {% endif %}
+</div>
+{% endblock %}

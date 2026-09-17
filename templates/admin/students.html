@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Student Roster &amp; Academic Profiles — ExamGuard Admin{% endblock %}
+{% block content %}
+<div class="admin-header">
+  <div>
+    <div class="admin-badge">👥 STUDENT MANAGEMENT</div>
+    <h1 style="margin:0.25rem 0 0;font-size:1.6rem;">Candidate Directory &amp; Academic Credentials</h1>
+    <p class="text-muted" style="margin:0.25rem 0 0;font-size:0.9rem;">
+      Review registered candidates, academic institution, domain specialization, webcam reference photos, and ID verification status.
+    </p>
+  </div>
+  <div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline btn-sm">← Back to Overview</a>
+  </div>
+</div>
+
+<div class="eg-card mt-2" style="padding:0;overflow:hidden;">
+  <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+    <h3 style="margin:0;font-size:1.1rem;">Registered Candidates ({{ candidates|length }})</h3>
+  </div>
+  <table class="eg-table">
+    <thead>
+      <tr>
+        <th>Candidate</th>
+        <th>College &amp; Academic Profile</th>
+        <th>Domain &amp; Department</th>
+        <th>Year &amp; Status</th>
+        <th>Webcam Photo</th>
+        <th>ID Document</th>
+        <th>Verification</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in candidates %}
+      <tr>
+        <td>
+          <div style="font-weight:600;">{{ u.full_name }}</div>
+          <div class="text-muted" style="font-size:0.78rem;">{{ u.email }}</div>
+          <div class="text-muted" style="font-size:0.75rem;margin-top:0.2rem;">Joined: {{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '—' }}</div>
+        </td>
+        <td>
+          <div style="font-weight:600;color:#1e293b;">{{ u.college or 'University Not Set' }}</div>
+          <span class="badge" style="font-size:0.72rem;background:#fef3c7;color:#92400e;margin-top:0.2rem;">
+            {{ u.academic_status or 'Currently Studying' }}
+          </span>
+        </td>
+        <td>
+          <div style="font-weight:600;color:var(--primary);">{{ u.domain or 'B.Tech' }}</div>
+          <div class="text-muted" style="font-size:0.78rem;">{{ u.department or 'General' }}</div>
+        </td>
+        <td>
+          <span class="badge" style="font-size:0.75rem;background:#dcfce7;color:#166534;font-weight:600;">
+            {{ u.year_of_study or '1st Year' }}
+          </span>
+        </td>
+        <td>
+          {% if u.photo_path %}
+            <a href="/static/{{ u.photo_path }}" target="_blank">
+              <img src="/static/{{ u.photo_path }}" alt="Face photo" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
+            </a>
+          {% else %}
+            <span class="text-muted" style="font-size:0.8rem;">No photo</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.id_type %}
+            <div style="font-size:0.8rem;"><strong>{{ u.id_type|replace('_', ' ')|title }}</strong></div>
+            <div class="text-muted" style="font-size:0.75rem;">{{ u.id_number or '—' }}</div>
+          {% endif %}
+          {% if u.id_document_path %}
+            <a href="/static/{{ u.id_document_path }}" target="_blank" class="btn btn-outline btn-xs mt-1" style="display:inline-block;">
+              View Doc ↗
+            </a>
+          {% else %}
+            <span class="text-muted" style="font-size:0.75rem;">No Doc</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.id_verified %}
+            <span class="badge badge-low">✓ Verified</span>
+          {% else %}
+            <span class="badge badge-high">Pending</span>
+          {% endif %}
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('admin.toggle_verify', user_id=u.id) }}">
+            {% if u.id_verified %}
+              <button type="submit" class="btn btn-outline-danger btn-sm" title="Revoke ID verification">
+                Revoke
+              </button>
+            {% else %}
+              <button type="submit" class="btn btn-primary btn-sm" title="Approve ID verification">
+                Approve ID
+              </button>
+            {% endif %}
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="8" class="text-center text-muted" style="padding:2rem;">
+          No candidates registered yet.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

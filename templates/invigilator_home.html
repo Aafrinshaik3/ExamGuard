@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Invigilator — ExamGuard{% endblock %}
+{% block content %}
+<h1 style="font-size:1.4rem;margin:0 0 0.25rem;">Invigilator console</h1>
+<p class="text-muted" style="margin:0 0 1.25rem;">Recent sessions. Open Admin Analytics for full charts and exports.</p>
+
+<div class="eg-card" style="padding:0;overflow:hidden;">
+  <table class="eg-table">
+    <thead>
+      <tr><th>ID</th><th>Candidate</th><th>Exam</th><th>Status</th><th>Score</th><th>Risk</th><th></th></tr>
+    </thead>
+    <tbody>
+    {% for s in sessions %}
+      <tr>
+        <td>#{{ s.id }}</td>
+        <td>{{ s.candidate.full_name if s.candidate else '—' }}</td>
+        <td>{{ s.exam_title }}</td>
+        <td>{{ s.status }}</td>
+        <td>{{ s.integrity_score.score if s.integrity_score else '—' }}</td>
+        <td>
+          {% if s.integrity_score %}
+            <span class="badge badge-{{ s.integrity_score.risk_label|lower }}">{{ s.integrity_score.risk_label }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td><a href="{{ url_for('exam.session_report', session_id=s.id) }}" class="btn btn-outline btn-sm">Report</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

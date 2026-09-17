@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% block title %}Admin &amp; Invigilator Console — ExamGuard{% endblock %}
+{% block content %}
+<div class="admin-header">
+  <div>
+    <div class="admin-badge">🛡️ ADMIN &amp; INVIGILATOR CONSOLE</div>
+    <h1 style="margin:0.25rem 0 0;font-size:1.6rem;">Exam Monitoring &amp; Integrity Overview</h1>
+    <p class="text-muted" style="margin:0.25rem 0 0;font-size:0.9rem;">
+      Real-time candidate tracking, voice &amp; face violation detection, and faculty proctoring logs.
+    </p>
+  </div>
+  <div class="admin-quick-links">
+    <a href="{{ url_for('admin.live_proctor') }}" class="btn btn-primary" style="background:#dc2626;border-color:#dc2626;">
+      <span class="live-dot-pulse">●</span> Live Proctoring Feed
+    </a>
+    <a href="{{ url_for('admin.students') }}" class="btn btn-outline">👥 Students</a>
+    <a href="{{ url_for('admin.manage_exams') }}" class="btn btn-outline">📝 Exams</a>
+    <a href="{{ url_for('admin.analytics') }}" class="btn btn-outline">📊 Analytics</a>
+  </div>
+</div>
+
+<!-- Logged-in Invigilator / Proctor Profile Banner -->
+<div class="eg-card mb-2" style="border-left: 4px solid #1e293b; background: linear-gradient(135deg, rgba(30,41,59,0.04) 0%, rgba(255,255,255,0) 100%);">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <div style="width:56px;height:56px;border-radius:50%;background:#1e293b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;">
+        🛡️
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <h2 style="margin:0;font-size:1.25rem;font-weight:700;">{{ current_user.full_name }}</h2>
+          <span class="badge badge-admin" style="font-size:0.72rem;">Active Proctor</span>
+          <span class="badge badge-low" style="font-size:0.72rem;">ID: {{ current_user.id_number or 'ADM-001' }}</span>
+        </div>
+        <p class="text-muted" style="margin:0.15rem 0 0.4rem;font-size:0.85rem;">
+          {{ current_user.email }}
+        </p>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;font-size:0.8rem;">
+          <span class="badge" style="background:#f1f5f9;color:#334155;font-weight:600;">
+            🏛️ {{ current_user.college or 'University Examination Authority' }}
+          </span>
+          <span class="badge" style="background:#f1f5f9;color:#334155;font-weight:600;">
+            🔬 {{ current_user.department or 'Department of Computer Science & Engineering' }}
+          </span>
+          <span class="badge" style="background:#ecfdf5;color:#047857;font-weight:600;">
+            ● Proctor Duty: Session Monitoring Active
+          </span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <a href="{{ url_for('admin.live_proctor') }}" class="btn btn-sm btn-outline" style="font-weight:600;">
+        Open Live Proctor Stream →
+      </a>
+    </div>
+  </div>
+</div>
+
+{% if stats.active_sessions > 0 %}
+<div class="active-alert-bar">
+  <div class="aab-text">
+    <span class="live-indicator">● LIVE NOW</span>
+    <strong>{{ stats.active_sessions }}</strong> student(s) currently taking an assessment with face and audio monitoring active!
+  </div>
+  <a href="{{ url_for('admin.live_proctor') }}" class="btn btn-danger btn-sm">Open Live Monitoring Room →</a>
+</div>
+{% endif %}
+
+<!-- Key Metrics Grid -->
+<div class="score-grid mt-2 mb-2">
+  <div class="score-card">
+    <div class="num" style="font-size:1.8rem;color:var(--danger);">{{ stats.active_sessions }}</div>
+    <div class="lbl">Active Exams Now</div>
+  </div>
+  <div class="score-card">
+    <div class="num" style="font-size:1.8rem;color:var(--primary);">{{ stats.attended_sessions }}</div>
+    <div class="lbl">Completed Sessions</div>
+  </div>
+  <div class="score-card">
+    <div class="num" style="font-size:1.8rem;color:{% if stats.avg_score >= 80 %}var(--success){% elif stats.avg_score >= 60 %}var(--warning){% else %}var(--danger){% endif %};">
+      {{ stats.avg_score }}
+    </div>
+    <div class="lbl">Average Integrity Score</div>
+  </div>
+  <div class="score-card">
+    <div class="num" style="font-size:1.8rem;color:var(--danger);">{{ stats.high_risk }}</div>
+    <div class="lbl">High Risk Flagged</div>
+  </div>
+  <div class="score-card">
+    <div class="num" style="font-size:1.8rem;">{{ stats.total_students }}</div>
+    <div class="lbl">Registered Students</div>
+  </div>
+  <div class="score-card">
+    <div class="num" style="font-size:1.8rem;color:#4338ca;">{{ stats.total_invigilators or invigilators|length }}</div>
+    <div class="lbl">Faculty &amp; Invigilators</div>
+  </div>
+</div>
+
+<!-- Proctoring Violations Summary -->
+<div class="eg-card mb-2">
+  <h2 class="section-title">Proctoring Telemetry (Voice &amp; Vision Tracking)</h2>
+  <div class="score-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+    <div class="score-card">
+      <div class="num" style="font-size:1.4rem;">{{ stats.audio_spikes }}</div>
+      <div class="lbl">🎙️ Audio Spikes</div>
+    </div>
+    <div class="score-card">
+      <div class="num" style="font-size:1.4rem;">{{ stats.face_absences }}</div>
+      <div class="lbl">👤 Face Absences</div>
+    </div>
+    <div class="score-card">
+      <div class="num" style="font-size:1.4rem;">{{ stats.multi_faces }}</div>
+      <div class="lbl">👥 Multi-Face Events</div>
+    </div>
+    <div class="score-card">
+      <div class="num" style="font-size:1.4rem;">{{ stats.tab_switches }}</div>
+      <div class="lbl">🔀 Tab Switches</div>
+    </div>
+    <div class="score-card">
+      <div class="num" style="font-size:1.4rem;">{{ stats.focus_losses }}</div>
+      <div class="lbl">👁️ Focus Loss</div>
+    </div>
+  </div>
+</div>
+
+<!-- Registered Invigilators Roster -->
+<div class="eg-card mb-2" style="padding:0;overflow:hidden;">
+  <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <h3 style="margin:0;font-size:1.1rem;">🛡️ Faculty &amp; Invigilators Directory ({{ invigilators|length }})</h3>
+      <p class="text-muted" style="margin:0.2rem 0 0;font-size:0.8rem;">Authorized faculty proctors assigned to examination supervision</p>
+    </div>
+    <span class="badge badge-admin">Proctors Active</span>
+  </div>
+  <table class="eg-table">
+    <thead>
+      <tr>
+        <th>Invigilator</th>
+        <th>Staff / Admin ID</th>
+        <th>Institution / College</th>
+        <th>Department / Division</th>
+        <th>Status</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inv in invigilators %}
+      <tr>
+        <td>
+          <div style="font-weight:600;">{{ inv.full_name }}</div>
+          <div class="text-muted" style="font-size:0.75rem;">{{ inv.email }}</div>
+        </td>
+        <td><code>{{ inv.id_number or 'ADM-KEY' }}</code></td>
+        <td>{{ inv.college or 'University Examination Cell' }}</td>
+        <td>{{ inv.department or 'Computer Science / Examination' }}</td>
+        <td>
+          <span class="badge badge-low">● Active Proctor</span>
+        </td>
+        <td class="text-muted" style="font-size:0.82rem;">
+          {{ inv.created_at.strftime('%Y-%m-%d') if inv.created_at else '—' }}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" class="text-center text-muted" style="padding:1.5rem;">
+          No other invigilators registered yet.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Recent Sessions Table with Detailed Student Attributes -->
+<div class="eg-card" style="padding:0;overflow:hidden;">
+  <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <h3 style="margin:0;font-size:1.1rem;">Exam Sessions Log</h3>
+      <p class="text-muted" style="margin:0.25rem 0 0;font-size:0.82rem;">Audit history of candidate test attempts, academic details, and proctored reports</p>
+    </div>
+    <a href="{{ url_for('admin.live_proctor') }}" class="btn btn-outline btn-sm">Watch Live Feed</a>
+  </div>
+  <table class="eg-table">
+    <thead>
+      <tr>
+        <th>Session</th>
+        <th>Candidate &amp; Academic Details</th>
+        <th>Exam Title</th>
+        <th>Status</th>
+        <th>Test Score</th>
+        <th>Integrity</th>
+        <th>Risk Level</th>
+        <th>Started At</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in recent_sessions %}
+      <tr>
+        <td><strong>#{{ s.id }}</strong></td>
+        <td>
+          <div style="font-weight:600;">{{ s.candidate.full_name if s.candidate else '—' }}</div>
+          <div class="text-muted" style="font-size:0.75rem;">{{ s.candidate.email if s.candidate else '' }}</div>
+          {% if s.candidate and (s.candidate.domain or s.candidate.college) %}
+            <div style="font-size:0.74rem;color:#475569;margin-top:0.2rem;">
+              🏛️ {{ s.candidate.college or 'College N/A' }}<br>
+              🎓 {{ s.candidate.domain }} · {{ s.candidate.department }} ({{ s.candidate.year_of_study }})
+            </div>
+          {% endif %}
+        </td>
+        <td>
+          <strong>{{ s.exam_title }}</strong>
+        </td>
+        <td>
+          {% if s.status == 'active' %}
+            <span class="badge badge-active">● Active Now</span>
+          {% elif s.status == 'submitted' %}
+            <span class="badge badge-submitted">Submitted</span>
+          {% elif s.status == 'terminated' %}
+            <span class="badge badge-high">Terminated</span>
+          {% else %}
+            <span class="badge">{{ s.status }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if s.test_score %}
+            <div style="font-weight:700;color:var(--primary);font-size:0.95rem;">
+              📝 {{ s.test_score }}
+            </div>
+            {% if '100' in s.test_score or '80' in s.test_score or '60' in s.test_score or '40' in s.test_score %}
+              <span class="badge badge-low" style="font-size:0.68rem;padding:0.15rem 0.45rem;">Passed</span>
+            {% else %}
+              <span class="badge badge-high" style="font-size:0.68rem;padding:0.15rem 0.45rem;">Needs Review</span>
+            {% endif %}
+          {% else %}
+            <span class="text-muted" style="font-size:0.8rem;">Pending / Terminated</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if s.integrity_score %}
+            <strong>{{ s.integrity_score.score }}</strong>/100
+          {% else %}
+            <span class="text-muted">—</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if s.integrity_score %}
+            <span class="badge badge-{{ s.integrity_score.risk_label|lower }}">{{ s.integrity_score.risk_label }}</span>
+          {% else %}
+            <span class="text-muted">—</span>
+          {% endif %}
+        </td>
+        <td class="text-muted" style="font-size:0.82rem;">
+          {{ s.started_at.strftime('%Y-%m-%d %H:%M') if s.started_at else '—' }}
+        </td>
+        <td>
+          <a href="{{ url_for('exam.session_report', session_id=s.id) }}" class="btn btn-outline btn-sm">
+            View Report
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="9" class="text-center text-muted" style="padding:2rem;">
+          No sessions recorded yet. Run assessments from the Student Portal.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

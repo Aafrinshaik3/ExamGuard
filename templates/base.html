@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ExamGuard{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <nav class="eg-nav">
+    <div class="inner">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <a class="eg-logo" href="{{ url_for('auth.index') }}">Exam<span>Guard</span></a>
+        {% if current_user.is_authenticated %}
+          {% if current_user.role in ('invigilator', 'admin') %}
+            <span class="nav-role-badge badge-admin">🛡️ Admin Console</span>
+          {% else %}
+            <span class="nav-role-badge badge-student">🎓 Student Portal</span>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <div class="eg-nav-right">
+        {% if current_user.is_authenticated %}
+          {% if current_user.role in ('invigilator', 'admin') %}
+            <div class="nav-menu">
+              <a href="{{ url_for('admin.dashboard') }}" class="nav-link">Overview</a>
+              <a href="{{ url_for('admin.live_proctor') }}" class="nav-link nav-live">
+                <span class="live-dot-pulse">●</span> Live Proctor
+              </a>
+              <a href="{{ url_for('admin.students') }}" class="nav-link">Students</a>
+              <a href="{{ url_for('admin.manage_exams') }}" class="nav-link">Exams</a>
+              <a href="{{ url_for('admin.analytics') }}" class="nav-link">Analytics</a>
+            </div>
+          {% else %}
+            <div class="nav-menu">
+              <a href="{{ url_for('exam.candidate_home') }}" class="nav-link">My Exams</a>
+              {% if not current_user.is_profile_complete %}
+                <a href="{{ url_for('auth.verify_id') }}" class="nav-link" style="color:var(--warning);">Verify ID ⚠</a>
+              {% endif %}
+            </div>
+          {% endif %}
+          <div class="user-pill">
+            <span class="eg-user">{{ current_user.full_name }}</span>
+            <a class="btn btn-outline btn-sm" href="{{ url_for('auth.logout') }}">Logout</a>
+          </div>
+        {% else %}
+          <div class="nav-menu">
+            <a href="{{ url_for('auth.login', role='candidate') }}" class="nav-link">Student Login</a>
+            <a href="{{ url_for('auth.login', role='invigilator') }}" class="nav-link">Admin Login</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Register</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="eg-main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="eg-footer">
+    <div class="footer-inner">
+      <div>ExamGuard &copy; 2026 — Online Exam Monitoring &amp; Integrity Analytics</div>
+    </div>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,562 @@
+{% extends "base.html" %}
+{% block title %}Proctored Exam #{{ session.id }} — ExamGuard{% endblock %}
+{% block content %}
+<div id="warningBanner" class="warning-banner"></div>
+
+<div id="terminateOverlay" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="text-align:center;max-width:440px;">
+    <h2 style="color:var(--danger);margin:0 0 0.75rem;">Assessment Terminated</h2>
+    <p id="terminateReason" style="margin:0 0 1rem;color:var(--muted);">
+      Proctoring rules were violated too many times. Your session has been closed and a report will be shared with the invigilator.
+    </p>
+    <form method="POST" action="{{ url_for('exam.submit_session', session_id=session.id) }}">
+      <input type="hidden" name="terminated" value="1">
+      <button type="submit" class="btn btn-danger">View integrity report</button>
+    </form>
+  </div>
+</div>
+
+<!-- Top proctoring bar -->
+<div class="proctor-bar">
+  <div class="proctor-bar-inner">
+    <div class="proctor-left">
+      <span class="proctor-live">● LIVE PROCTORING</span>
+      <span class="proctor-sep">|</span>
+      <span id="examTitleShort">{{ session.exam_title }}</span>
+    </div>
+    <div class="proctor-center">
+      <span class="timer-label">Time left</span>
+      <span class="timer-value" id="timerDisplay">--:--</span>
+    </div>
+    <div class="proctor-right">
+      <span class="status-pill status-warn" id="violationBadge">Violations 0/{{ max_violations }}</span>
+      <span class="status-pill status-muted" id="faceAbsBadge">Face absences 0/5</span>
+      <span class="status-pill status-muted" id="tabBadge">Tab switches 0/5</span>
+    </div>
+  </div>
+</div>
+
+<div class="exam-layout">
+  <!-- Main question area -->
+  <div class="exam-main">
+    <div class="eg-card exam-paper">
+      <div class="exam-paper-header">
+        <div>
+          <h1 style="margin:0;font-size:1.15rem;">{{ session.exam_title }}</h1>
+          <p class="text-muted" style="margin:0.25rem 0 0;font-size:0.8rem;">
+            Session #{{ session.id }} · Do not leave this window · Camera must stay on
+          </p>
+        </div>
+        <div class="candidate-chip">{{ current_user.full_name }}</div>
+      </div>
+
+      <form method="POST" id="examForm" action="{{ url_for('exam.submit_session', session_id=session.id) }}"
+            onsubmit="return confirm('Submit assessment? Monitoring will stop and integrity report will be generated.');">
+        
+        {% if questions %}
+          {% for q in questions %}
+          <div class="question-block" data-q="{{ q.id }}">
+            <div class="q-num">Question {{ loop.index }} of {{ questions|length }}</div>
+            <p class="q-text">{{ q.text }}</p>
+            {% for opt_key, opt_text in q.options.items() %}
+            <label class="opt">
+              <input type="radio" name="q{{ q.id }}" value="{{ opt_key }}">
+              <strong style="margin-right:0.25rem;">{{ opt_key|upper }})</strong> {{ opt_text }}
+            </label>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="question-block">
+            <p class="text-muted">No questions configured for this assessment.</p>
+          </div>
+        {% endif %}
+
+        <div class="exam-actions">
+          <button type="submit" class="btn btn-danger" id="submitBtn">Submit assessment</button>
+          <span class="text-muted" style="font-size:0.8rem;">Answers are monitored. Tab switches and face absence are recorded.</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Side proctor panel -->
+  <aside class="exam-side">
+    <div class="eg-card eg-card-sm">
+      <p class="side-title">Proctor camera</p>
+      <div class="video-wrap proctor-video">
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="overlay" class="video-overlay"></canvas>
+        <div class="video-watermark" id="videoWatermark">{{ current_user.full_name }}</div>
+      </div>
+      <div class="mt-1" style="display:flex;flex-wrap:wrap;gap:0.35rem;">
+        <span id="faceStatus" class="status-pill status-muted">Face…</span>
+        <span id="audioStatus" class="status-pill status-muted">Audio…</span>
+        <span id="matchStatus" class="status-pill status-muted">ID…</span>
+      <div class="mt-1">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;margin-bottom:0.25rem;color:var(--muted);">
+          <span>🎙️ Live Mic Range</span>
+          <span id="audioLevelPct" style="font-weight:600;font-variant-numeric:tabular-nums;">0%</span>
+        </div>
+        <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;border:1px solid var(--border);">
+          <div id="audioBar" style="height:100%;width:0%;background:#2563eb;transition:width 0.08s ease, background 0.15s ease;"></div>
+        </div>
+      </div>
+      <p class="text-muted" style="font-size:0.72rem;margin:0.5rem 0 0;line-height:1.35;">
+        Green box = face OK · Red = no face / multiple faces · Identity checked against registration photo.
+        <strong>5 face absences</strong> or <strong>5 tab switches</strong> will terminate the test.
+      </p>
+    </div>
+    <div class="eg-card eg-card-sm">
+      <p class="side-title">Live event log</p>
+      <div class="event-feed" id="eventList">
+        <div class="event-item text-muted">Proctoring started</div>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+import { FaceDetector, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm";
+
+const SESSION_ID = {{ session.id }};
+const MAX_VIOLATIONS = {{ max_violations }};
+const MAX_FACE_ABSENT = 5;
+const MAX_TABS = 5;
+const DURATION_MIN = {{ session.duration_minutes or 60 }};
+
+const video = document.getElementById('webcam');
+const overlay = document.getElementById('overlay');
+const faceStatus = document.getElementById('faceStatus');
+const audioStatus = document.getElementById('audioStatus');
+const matchStatus = document.getElementById('matchStatus');
+const audioBar = document.getElementById('audioBar');
+const eventList = document.getElementById('eventList');
+const banner = document.getElementById('warningBanner');
+const violationBadge = document.getElementById('violationBadge');
+const faceAbsBadge = document.getElementById('faceAbsBadge');
+const tabBadge = document.getElementById('tabBadge');
+const terminateOverlay = document.getElementById('terminateOverlay');
+const terminateReason = document.getElementById('terminateReason');
+const timerDisplay = document.getElementById('timerDisplay');
+
+let faceDetector = null;
+let lastFaces = [];
+let lastFacePresent = true;
+let absenceStart = null;
+let closed = false;
+let lastAudioSpike = 0;
+let lastMatchCheck = 0;
+let consecutiveNoFace = 0;
+let faceAbsentLogged = 0;
+let tabLogged = 0;
+let endTime = Date.now() + DURATION_MIN * 60 * 1000;
+
+function showWarning(msg) {
+  banner.textContent = msg;
+  banner.classList.add('show');
+  setTimeout(() => banner.classList.remove('show'), 4500);
+}
+
+function forceClose(reason) {
+  if (closed) return;
+  closed = true;
+  if (reason) terminateReason.textContent = reason;
+  terminateOverlay.style.display = 'flex';
+  if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+}
+
+function addEvent(type, flagged) {
+  const el = document.createElement('div');
+  el.className = 'event-item' + (flagged ? ' flagged' : '');
+  el.textContent = `[${new Date().toLocaleTimeString()}] ${type}` + (flagged ? ' ⚠' : '');
+  eventList.prepend(el);
+}
+
+function updateBadges(data) {
+  if (typeof data.violation_count === 'number') {
+    violationBadge.textContent = `Violations ${data.violation_count}/${MAX_VIOLATIONS}`;
+    violationBadge.className = data.violation_count >= MAX_VIOLATIONS - 1 ? 'status-pill status-bad' : 'status-pill status-warn';
+  }
+  if (typeof data.face_absent_count === 'number') {
+    faceAbsentLogged = data.face_absent_count;
+    faceAbsBadge.textContent = `Face absences ${data.face_absent_count}/${MAX_FACE_ABSENT}`;
+    faceAbsBadge.className = data.face_absent_count >= MAX_FACE_ABSENT - 1 ? 'status-pill status-bad' : 'status-pill status-muted';
+  }
+  if (typeof data.tab_switch_count === 'number') {
+    tabLogged = data.tab_switch_count;
+    tabBadge.textContent = `Tab switches ${data.tab_switch_count}/${MAX_TABS}`;
+    tabBadge.className = data.tab_switch_count >= MAX_TABS - 1 ? 'status-pill status-bad' : 'status-pill status-muted';
+  }
+}
+
+function logEvent(type, duration, details) {
+  if (closed) return;
+  fetch('/api/event', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      session_id: SESSION_ID,
+      event_type: type,
+      duration_seconds: duration || 0,
+      details: details || ''
+    })
+  }).then(r => r.json()).then(data => {
+    updateBadges(data);
+    if (data.force_close) {
+      let reason = 'Proctoring limit reached. Assessment terminated.';
+      if (data.face_absent_count >= MAX_FACE_ABSENT)
+        reason = `Face was not visible ${MAX_FACE_ABSENT} times. Assessment terminated.`;
+      else if (data.tab_switch_count >= MAX_TABS)
+        reason = `Tab switched ${MAX_TABS} times. Assessment terminated.`;
+      forceClose(reason);
+      return;
+    }
+    addEvent(type, data.is_flagged);
+    const labels = {
+      tab_switch: 'Tab switch — stay on the exam page',
+      focus_loss: 'Window focus lost',
+      face_absent: 'Face not detected',
+      multi_face: 'Multiple faces detected',
+      audio_spike: 'Elevated audio',
+      face_mismatch: 'Identity does not match registration photo'
+    };
+    if (data.is_flagged || ['tab_switch','face_absent','multi_face','face_mismatch'].includes(type)) {
+      let msg = labels[type] || type;
+      if (type === 'face_absent' && typeof data.remaining_face === 'number')
+        msg += ` (${data.remaining_face} face absences left)`;
+      if (type === 'tab_switch' && typeof data.remaining_tabs === 'number')
+        msg += ` (${data.remaining_tabs} tab switches left)`;
+      showWarning(msg);
+    }
+  }).catch(() => {});
+}
+
+function drawBoxes(faces, color) {
+  lastFaces = faces || [];
+  const ctx = overlay.getContext('2d');
+  const vw = video.videoWidth || 1;
+  const vh = video.videoHeight || 1;
+  const cw = video.clientWidth || (video.parentElement ? video.parentElement.clientWidth : 320) || 320;
+  const ch = video.clientHeight || (video.parentElement ? video.parentElement.clientHeight : 240) || 240;
+  overlay.width = cw;
+  overlay.height = ch;
+  const sx = cw / vw, sy = ch / vh;
+  ctx.clearRect(0, 0, cw, ch);
+  lastFaces.forEach(f => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(f.x * sx, f.y * sy, f.w * sx, f.h * sy);
+  });
+}
+
+function grabDataUrl() {
+  const c = document.createElement('canvas');
+  c.width = video.videoWidth || 640;
+  c.height = video.videoHeight || 480;
+  c.getContext('2d').drawImage(video, 0, 0);
+  return c.toDataURL('image/jpeg', 0.85);
+}
+
+async function initDetector() {
+  try {
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+    );
+    const opts = {
+      baseOptions: {
+        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
+        delegate: "GPU"
+      },
+      runningMode: "VIDEO",
+      minDetectionConfidence: 0.4
+    };
+    try {
+      faceDetector = await FaceDetector.createFromOptions(vision, opts);
+    } catch (e) {
+      opts.baseOptions.delegate = "CPU";
+      faceDetector = await FaceDetector.createFromOptions(vision, opts);
+    }
+  } catch (e) {
+    console.warn("Client-side MediaPipe not available, using server-side face detection", e);
+  }
+}
+
+function detectNow() {
+  if (!faceDetector || !video.videoWidth) return [];
+  try {
+    const result = faceDetector.detectForVideo(video, performance.now());
+    const detections = (result && result.detections) || [];
+    return detections.map(d => ({
+      x: Math.round(d.boundingBox.originX),
+      y: Math.round(d.boundingBox.originY),
+      w: Math.round(d.boundingBox.width),
+      h: Math.round(d.boundingBox.height)
+    }));
+  } catch (e) {
+    return lastFaces;
+  }
+}
+
+let lastServerCheck = 0;
+
+function handleFaceResults(faces) {
+  if (faces.length > 1) {
+    consecutiveNoFace = 0;
+    drawBoxes(faces, '#dc2626');
+    faceStatus.textContent = 'Multiple faces ⚠';
+    faceStatus.className = 'status-pill status-bad';
+    if (lastFacePresent) logEvent('multi_face', 0, `${faces.length} faces detected`);
+    lastFacePresent = true;
+    absenceStart = null;
+  } else if (faces.length === 1) {
+    consecutiveNoFace = 0;
+    drawBoxes(faces, '#16a34a');
+    faceStatus.textContent = 'Face present ✓';
+    faceStatus.className = 'status-pill status-ok';
+    if (!lastFacePresent && absenceStart) {
+      const dur = Math.max(1, Math.round((Date.now() - absenceStart) / 1000));
+      logEvent('face_absent', dur, `Face absent ${dur}s`);
+      absenceStart = null;
+    }
+    lastFacePresent = true;
+    const now = Date.now();
+    if (now - lastMatchCheck > 15000) {
+      lastMatchCheck = now;
+      verifyIdentity(faces);
+    }
+  } else {
+    consecutiveNoFace++;
+    drawBoxes([], '#dc2626');
+    faceStatus.textContent = 'No face';
+    faceStatus.className = 'status-pill status-bad';
+    if (consecutiveNoFace >= 15) {
+      if (lastFacePresent) {
+        absenceStart = Date.now();
+        showWarning('Face not visible — please look at the camera');
+      }
+      lastFacePresent = false;
+    }
+  }
+}
+
+function serverFaceCheck() {
+  if (closed || !video.videoWidth) return;
+  fetch('/api/face-check', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      session_id: SESSION_ID,
+      image: grabDataUrl(),
+      check_match: true
+    })
+  }).then(r => r.json()).then(res => {
+    if (res.force_close) { forceClose('Session closed by proctoring rules.'); return; }
+    const faces = res.faces || [];
+    handleFaceResults(faces);
+    if (res.match === true) {
+      matchStatus.textContent = 'Identity OK';
+      matchStatus.className = 'status-pill status-ok';
+    } else if (res.match === false) {
+      matchStatus.textContent = 'Mismatch';
+      matchStatus.className = 'status-pill status-bad';
+      logEvent('face_mismatch', 0, res.match_message || 'Face mismatch');
+    }
+  }).catch(() => {});
+}
+
+function monitoringLoop() {
+  if (closed) return;
+
+  // 1. Timer
+  const left = Math.max(0, endTime - Date.now());
+  const mm = String(Math.floor(left / 60000)).padStart(2, '0');
+  const ss = String(Math.floor((left % 60000) / 1000)).padStart(2, '0');
+  timerDisplay.textContent = `${mm}:${ss}`;
+  if (left <= 0) {
+    forceClose('Time is up. Assessment closed.');
+    return;
+  }
+
+  // 2. Face tracking
+  if (video.srcObject && video.videoWidth) {
+    if (faceDetector) {
+      const faces = detectNow();
+      handleFaceResults(faces);
+    } else {
+      const now = Date.now();
+      if (now - lastServerCheck > 3500) {
+        lastServerCheck = now;
+        serverFaceCheck();
+      }
+    }
+  }
+
+  requestAnimationFrame(monitoringLoop);
+}
+
+function verifyIdentity(faces) {
+  if (closed || !video.videoWidth) return;
+  fetch('/api/face-check', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      session_id: SESSION_ID,
+      image: grabDataUrl(),
+      faces: faces,
+      check_match: true
+    })
+  }).then(r => r.json()).then(res => {
+    if (res.force_close) { forceClose('Session closed by proctoring rules.'); return; }
+    if (res.match === true) {
+      matchStatus.textContent = 'Identity OK';
+      matchStatus.className = 'status-pill status-ok';
+    } else if (res.match === false) {
+      matchStatus.textContent = 'Mismatch';
+      matchStatus.className = 'status-pill status-bad';
+      logEvent('face_mismatch', 0, res.match_message || 'Face mismatch');
+      drawBoxes(faces, '#d97706');
+    }
+  }).catch(() => {});
+}
+
+function startAudioMeter(stream) {
+  try {
+    const actx = new (window.AudioContext || window.webkitAudioContext)();
+    const resumeActx = () => {
+      if (actx.state === 'suspended') actx.resume().catch(() => {});
+    };
+    if (actx.state === 'suspended') {
+      resumeActx();
+      window.addEventListener('click', resumeActx, { once: true });
+      window.addEventListener('keydown', resumeActx, { once: true });
+    }
+    const src = actx.createMediaStreamSource(stream);
+    const analyser = actx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.25;
+    src.connect(analyser);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const pctEl = document.getElementById('audioLevelPct');
+
+    (function meter() {
+      if (closed) return;
+      analyser.getByteFrequencyData(data);
+      let sum = 0;
+      for (let i = 0; i < data.length; i++) sum += data[i];
+      const avg = sum / data.length;
+
+      // Sensitive lively conversion
+      const percent = Math.min(100, Math.round((avg / 28) * 100));
+      audioBar.style.width = Math.max(percent > 2 ? percent : 2, 2) + '%';
+      if (pctEl) pctEl.textContent = percent + '%';
+
+      if (percent > 65) {
+        audioBar.style.background = '#ef4444';
+        audioStatus.textContent = 'Voice / Loud';
+        audioStatus.className = 'status-pill status-warn';
+        if (Date.now() - lastAudioSpike > 7000) {
+          lastAudioSpike = Date.now();
+          logEvent('audio_spike', 0, 'Elevated microphone volume');
+        }
+      } else if (percent > 12) {
+        audioBar.style.background = '#10b981';
+        audioStatus.textContent = 'Voice Normal';
+        audioStatus.className = 'status-pill status-ok';
+      } else {
+        audioBar.style.background = '#3b82f6';
+        audioStatus.textContent = 'Audio Quiet';
+        audioStatus.className = 'status-pill status-ok';
+      }
+      requestAnimationFrame(meter);
+    })();
+  } catch (err) {
+    console.warn("Audio meter init error:", err);
+    audioStatus.textContent = 'Mic Active';
+    audioStatus.className = 'status-pill status-ok';
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && !closed) {
+    logEvent('tab_switch', 0, 'Left exam tab');
+    showWarning('Tab switch detected');
+  }
+});
+window.addEventListener('blur', () => {
+  if (!closed) logEvent('focus_loss', 0, 'Window blur');
+});
+document.addEventListener('copy', e => { e.preventDefault(); showWarning('Copy is disabled during the exam'); });
+document.addEventListener('cut', e => { e.preventDefault(); });
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+(async function start() {
+  let stream = null;
+  // 1. Immediately request camera & mic without awaiting AI detector
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+      audio: true
+    });
+  } catch (e) {
+    console.warn("Combined getUserMedia failed, trying video only...", e);
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+      });
+    } catch (e2) {
+      console.error("Camera access failed:", e2);
+    }
+  }
+
+  if (stream) {
+    video.srcObject = stream;
+    video.muted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    try {
+      await video.play();
+    } catch (e) {
+      console.warn("Video play error:", e);
+    }
+
+    faceStatus.textContent = 'Camera active';
+    faceStatus.className = 'status-pill status-ok';
+
+    // Start live audio meter
+    if (stream.getAudioTracks().length) {
+      startAudioMeter(stream);
+    } else {
+      try {
+        const aStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        startAudioMeter(aStream);
+      } catch (aErr) {
+        audioStatus.textContent = 'Mic N/A';
+        audioStatus.className = 'status-pill status-muted';
+      }
+    }
+
+    // Start monitoring loop immediately
+    monitoringLoop();
+
+    // Initialize AI face detector asynchronously in background
+    initDetector();
+  } else {
+    faceStatus.textContent = 'Camera denied';
+    faceStatus.className = 'status-pill status-bad';
+    audioStatus.textContent = 'Mic denied';
+    audioStatus.className = 'status-pill status-bad';
+    showWarning('Camera and microphone are required for proctoring');
+  }
+
+  // Soft fullscreen request
+  try {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  } catch (e) {}
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,938 @@
+[
+  {
+    "session_id": 1,
+    "summary_text": "Angie Henderson completed the examination session. Recorded 1 tab-switch event(s). Face was absent for 0m 22s total. Detected 1 elevated audio spike(s). Overall integrity score: 82.33/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.867075"
+  },
+  {
+    "session_id": 2,
+    "summary_text": "Olivia Moore completed the examination session. Recorded 1 tab-switch event(s). Face was absent for 0m 11s total. Detected 1 elevated audio spike(s). Overall integrity score: 84.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.868158"
+  },
+  {
+    "session_id": 3,
+    "summary_text": "Olivia Moore completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 8s total. Detected 1 elevated audio spike(s). Overall integrity score: 66.67/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.868854"
+  },
+  {
+    "session_id": 4,
+    "summary_text": "Thomas Miller completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 20s total. Overall integrity score: 91.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.869404"
+  },
+  {
+    "session_id": 5,
+    "summary_text": "Thomas Miller completed the examination session. Face was absent for 0m 15s total. Detected 1 elevated audio spike(s). Overall integrity score: 91.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.869936"
+  },
+  {
+    "session_id": 6,
+    "summary_text": "Holly Wood completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 49s total. Multiple faces detected on 1 occasion(s). Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.870979"
+  },
+  {
+    "session_id": 7,
+    "summary_text": "Crystal Johnson completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 20s total. Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.872279"
+  },
+  {
+    "session_id": 8,
+    "summary_text": "Kimberly Burgess completed the examination session. Recorded 14 tab-switch event(s). Focus was lost 11 time(s). Face was absent for 3m 4s total. Multiple faces detected on 2 occasion(s). Detected 7 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.873943"
+  },
+  {
+    "session_id": 9,
+    "summary_text": "Kimberly Burgess completed the examination session. Recorded 9 tab-switch event(s). Focus was lost 10 time(s). Face was absent for 6m 46s total. Multiple faces detected on 3 occasion(s). Detected 6 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.875332"
+  },
+  {
+    "session_id": 10,
+    "summary_text": "Arthur James completed the examination session. Recorded 10 tab-switch event(s). Focus was lost 9 time(s). Face was absent for 5m 59s total. Multiple faces detected on 2 occasion(s). Detected 4 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.876867"
+  },
+  {
+    "session_id": 11,
+    "summary_text": "Arthur James completed the examination session. Recorded 10 tab-switch event(s). Focus was lost 11 time(s). Face was absent for 3m 35s total. Multiple faces detected on 3 occasion(s). Detected 5 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.878355"
+  },
+  {
+    "session_id": 12,
+    "summary_text": "Sherri Baker completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 4 time(s). Face was absent for 1m 18s total. Detected 1 elevated audio spike(s). Overall integrity score: 21.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.879180"
+  },
+  {
+    "session_id": 13,
+    "summary_text": "Sherri Baker completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 22s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 11.33/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.879986"
+  },
+  {
+    "session_id": 14,
+    "summary_text": "Katherine Rodriguez completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 5 time(s). Face was absent for 2m 21s total. Multiple faces detected on 1 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.880874"
+  },
+  {
+    "session_id": 15,
+    "summary_text": "Deborah Brennan completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 8s total. Overall integrity score: 77.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.881455"
+  },
+  {
+    "session_id": 16,
+    "summary_text": "Deborah Brennan completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 5s total. Detected 1 elevated audio spike(s). Overall integrity score: 72.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.882065"
+  },
+  {
+    "session_id": 17,
+    "summary_text": "Crystal Robinson completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 3s total. Multiple faces detected on 1 occasion(s). Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.882947"
+  },
+  {
+    "session_id": 18,
+    "summary_text": "Laura Kennedy completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 27s total. Multiple faces detected on 1 occasion(s). Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.883839"
+  },
+  {
+    "session_id": 19,
+    "summary_text": "Laura Kennedy completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 14s total. Detected 2 elevated audio spike(s). Overall integrity score: 13.67/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.884708"
+  },
+  {
+    "session_id": 20,
+    "summary_text": "Rebecca Rodriguez completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 44s total. Multiple faces detected on 1 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.885694"
+  },
+  {
+    "session_id": 21,
+    "summary_text": "Brandon Molina completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 25s total. Overall integrity score: 69.83/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.886343"
+  },
+  {
+    "session_id": 22,
+    "summary_text": "Brandon Molina completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 6s total. Detected 1 elevated audio spike(s). Overall integrity score: 72.0/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.886966"
+  },
+  {
+    "session_id": 23,
+    "summary_text": "Michael Cross completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 38s total. Overall integrity score: 72.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.887545"
+  },
+  {
+    "session_id": 24,
+    "summary_text": "Michael Cross completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 33s total. Overall integrity score: 73.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.888119"
+  },
+  {
+    "session_id": 25,
+    "summary_text": "Sarah Moore completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 2m 7s total. Multiple faces detected on 1 occasion(s). Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.889015"
+  },
+  {
+    "session_id": 26,
+    "summary_text": "Sarah Moore completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 4 time(s). Face was absent for 1m 29s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 20.17/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.889781"
+  },
+  {
+    "session_id": 27,
+    "summary_text": "Emily Green completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 8s total. Detected 1 elevated audio spike(s). Overall integrity score: 79.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.890357"
+  },
+  {
+    "session_id": 28,
+    "summary_text": "Emily Green completed the examination session. Focus was lost 2 time(s). Face was absent for 0m 14s total. Overall integrity score: 87.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.890902"
+  },
+  {
+    "session_id": 29,
+    "summary_text": "Derek Mahoney completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 38s total. Detected 1 elevated audio spike(s). Overall integrity score: 61.67/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.891535"
+  },
+  {
+    "session_id": 30,
+    "summary_text": "Matthew Mcmillan completed the examination session. Focus was lost 2 time(s). Face was absent for 0m 21s total. Overall integrity score: 86.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.892080"
+  },
+  {
+    "session_id": 31,
+    "summary_text": "Danielle Odonnell completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 23s total. Overall integrity score: 78.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.892651"
+  },
+  {
+    "session_id": 32,
+    "summary_text": "Benjamin Ware completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 2m 9s total. Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.893481"
+  },
+  {
+    "session_id": 33,
+    "summary_text": "Mary Gomez completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 2m 16s total. Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.894329"
+  },
+  {
+    "session_id": 34,
+    "summary_text": "Mary Gomez completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 5 time(s). Face was absent for 2m 14s total. Multiple faces detected on 1 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.895199"
+  },
+  {
+    "session_id": 35,
+    "summary_text": "Debra Cobb completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 47s total. Detected 1 elevated audio spike(s). Overall integrity score: 68.17/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.895799"
+  },
+  {
+    "session_id": 36,
+    "summary_text": "Debra Cobb completed the examination session. Face was absent for 0m 40s total. Overall integrity score: 93.33/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.896405"
+  },
+  {
+    "session_id": 37,
+    "summary_text": "Sean Rasmussen completed the examination session. Face was absent for 0m 50s total. Overall integrity score: 91.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.896852"
+  },
+  {
+    "session_id": 38,
+    "summary_text": "Sean Rasmussen completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 19s total. Overall integrity score: 75.83/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.897428"
+  },
+  {
+    "session_id": 39,
+    "summary_text": "Richard Graham completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 31s total. Multiple faces detected on 1 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.898353"
+  },
+  {
+    "session_id": 40,
+    "summary_text": "Richard Graham completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 24s total. Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.899266"
+  },
+  {
+    "session_id": 41,
+    "summary_text": "Benjamin Beck completed the examination session. Focus was lost 2 time(s). Face was absent for 0m 5s total. Overall integrity score: 89.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.899881"
+  },
+  {
+    "session_id": 42,
+    "summary_text": "Benjamin Beck completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 26s total. Detected 1 elevated audio spike(s). Overall integrity score: 68.67/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.900471"
+  },
+  {
+    "session_id": 43,
+    "summary_text": "Stephanie Gilbert completed the examination session. Recorded 10 tab-switch event(s). Focus was lost 10 time(s). Face was absent for 3m 46s total. Multiple faces detected on 2 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.901664"
+  },
+  {
+    "session_id": 44,
+    "summary_text": "John Santana completed the examination session. Face was absent for 0m 27s total. Detected 1 elevated audio spike(s). Overall integrity score: 89.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.902197"
+  },
+  {
+    "session_id": 45,
+    "summary_text": "John Santana completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 29s total. Detected 1 elevated audio spike(s). Overall integrity score: 76.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.902764"
+  },
+  {
+    "session_id": 46,
+    "summary_text": "John Atkinson completed the examination session. Focus was lost 2 time(s). Face was absent for 0m 22s total. Overall integrity score: 86.33/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.903308"
+  },
+  {
+    "session_id": 47,
+    "summary_text": "John Atkinson completed the examination session. Recorded 1 tab-switch event(s). Face was absent for 0m 44s total. Detected 1 elevated audio spike(s). Overall integrity score: 78.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.903851"
+  },
+  {
+    "session_id": 48,
+    "summary_text": "Colleen Brock completed the examination session. Focus was lost 2 time(s). Face was absent for 0m 13s total. Overall integrity score: 87.83/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.904390"
+  },
+  {
+    "session_id": 49,
+    "summary_text": "Michelle Wagner completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 34s total. Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.905289"
+  },
+  {
+    "session_id": 50,
+    "summary_text": "George Orozco completed the examination session. Recorded 8 tab-switch event(s). Focus was lost 9 time(s). Face was absent for 3m 12s total. Multiple faces detected on 3 occasion(s). Detected 7 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.906541"
+  },
+  {
+    "session_id": 51,
+    "summary_text": "George Orozco completed the examination session. Recorded 8 tab-switch event(s). Focus was lost 11 time(s). Face was absent for 6m 3s total. Multiple faces detected on 1 occasion(s). Detected 6 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.907774"
+  },
+  {
+    "session_id": 52,
+    "summary_text": "Taylor Silva completed the examination session. Recorded 1 tab-switch event(s). Face was absent for 0m 31s total. Overall integrity score: 86.83/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.908301"
+  },
+  {
+    "session_id": 53,
+    "summary_text": "Taylor Silva completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 33s total. Overall integrity score: 68.5/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.908895"
+  },
+  {
+    "session_id": 54,
+    "summary_text": "John Price completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 32s total. Overall integrity score: 89.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.909414"
+  },
+  {
+    "session_id": 55,
+    "summary_text": "John Price completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 9s total. Overall integrity score: 80.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.909978"
+  },
+  {
+    "session_id": 56,
+    "summary_text": "Catherine Green completed the examination session. Recorded 11 tab-switch event(s). Focus was lost 13 time(s). Face was absent for 8m 9s total. Multiple faces detected on 2 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.911297"
+  },
+  {
+    "session_id": 57,
+    "summary_text": "Catherine Green completed the examination session. Recorded 10 tab-switch event(s). Focus was lost 8 time(s). Face was absent for 7m 6s total. Multiple faces detected on 1 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T07:58:38.912300"
+  },
+  {
+    "session_id": 59,
+    "summary_text": "Session was auto-terminated after exceeding 5 rule violations. aafrin completed the examination session. Multiple faces detected on 5 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 19.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-11T08:48:40.550315"
+  },
+  {
+    "session_id": 60,
+    "summary_text": "Angie Henderson completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 10s total. Detected 1 elevated audio spike(s). Overall integrity score: 87.33/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.280831"
+  },
+  {
+    "session_id": 61,
+    "summary_text": "Angie Henderson completed the examination session. Focus was lost 2 time(s). Face was absent for 0m 39s total. Overall integrity score: 83.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.282087"
+  },
+  {
+    "session_id": 62,
+    "summary_text": "Olivia Moore completed the examination session. Recorded 2 tab-switch event(s). Face was absent for 0m 47s total. Overall integrity score: 76.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.282720"
+  },
+  {
+    "session_id": 63,
+    "summary_text": "Olivia Moore completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 15s total. Detected 1 elevated audio spike(s). Overall integrity score: 78.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.283351"
+  },
+  {
+    "session_id": 64,
+    "summary_text": "Thomas Miller completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 22s total. Overall integrity score: 91.33/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.284087"
+  },
+  {
+    "session_id": 65,
+    "summary_text": "Holly Wood completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 5 time(s). Face was absent for 1m 27s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.285190"
+  },
+  {
+    "session_id": 66,
+    "summary_text": "Crystal Johnson completed the examination session. Recorded 8 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 4m 18s total. Multiple faces detected on 3 occasion(s). Detected 4 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.286518"
+  },
+  {
+    "session_id": 67,
+    "summary_text": "Kimberly Burgess completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 4 time(s). Face was absent for 1m 20s total. Detected 3 elevated audio spike(s). Overall integrity score: 16.67/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.287363"
+  },
+  {
+    "session_id": 68,
+    "summary_text": "Arthur James completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 54s total. Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.288306"
+  },
+  {
+    "session_id": 69,
+    "summary_text": "Arthur James completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 35s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 4.17/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.289115"
+  },
+  {
+    "session_id": 70,
+    "summary_text": "Sherri Baker completed the examination session. Face was absent for 0m 17s total. Detected 1 elevated audio spike(s). Overall integrity score: 91.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.289644"
+  },
+  {
+    "session_id": 71,
+    "summary_text": "Katherine Rodriguez completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 3 time(s). Face was absent for 2m 10s total. Detected 1 elevated audio spike(s). Overall integrity score: 25.33/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.290392"
+  },
+  {
+    "session_id": 72,
+    "summary_text": "Deborah Brennan completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 3 time(s). Face was absent for 1m 33s total. Multiple faces detected on 1 occasion(s). Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.291250"
+  },
+  {
+    "session_id": 73,
+    "summary_text": "Deborah Brennan completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 23s total. Detected 3 elevated audio spike(s). Overall integrity score: 9.17/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.292070"
+  },
+  {
+    "session_id": 74,
+    "summary_text": "Crystal Robinson completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 5s total. Detected 1 elevated audio spike(s). Overall integrity score: 80.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.292633"
+  },
+  {
+    "session_id": 75,
+    "summary_text": "Crystal Robinson completed the examination session. Recorded 1 tab-switch event(s). Face was absent for 0m 9s total. Overall integrity score: 90.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.293167"
+  },
+  {
+    "session_id": 76,
+    "summary_text": "Laura Kennedy completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 47s total. Detected 1 elevated audio spike(s). Overall integrity score: 65.17/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.293783"
+  },
+  {
+    "session_id": 77,
+    "summary_text": "Rebecca Rodriguez completed the examination session. Recorded 2 tab-switch event(s). Face was absent for 0m 18s total. Detected 1 elevated audio spike(s). Overall integrity score: 75.0/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.294344"
+  },
+  {
+    "session_id": 78,
+    "summary_text": "Brandon Molina completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 3 time(s). Face was absent for 1m 42s total. Detected 3 elevated audio spike(s). Overall integrity score: 10.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.295103"
+  },
+  {
+    "session_id": 79,
+    "summary_text": "Michael Cross completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 7s total. Detected 1 elevated audio spike(s). Overall integrity score: 87.83/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.295664"
+  },
+  {
+    "session_id": 80,
+    "summary_text": "Sarah Moore completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 19s total. Detected 1 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.296575"
+  },
+  {
+    "session_id": 81,
+    "summary_text": "Emily Green completed the examination session. Recorded 14 tab-switch event(s). Focus was lost 11 time(s). Face was absent for 4m 56s total. Multiple faces detected on 1 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.297873"
+  },
+  {
+    "session_id": 82,
+    "summary_text": "Emily Green completed the examination session. Recorded 11 tab-switch event(s). Focus was lost 14 time(s). Face was absent for 6m 29s total. Multiple faces detected on 2 occasion(s). Detected 6 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.299602"
+  },
+  {
+    "session_id": 83,
+    "summary_text": "Derek Mahoney completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 14s total. Overall integrity score: 84.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.300221"
+  },
+  {
+    "session_id": 84,
+    "summary_text": "Matthew Mcmillan completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 3 time(s). Face was absent for 1m 31s total. Detected 2 elevated audio spike(s). Overall integrity score: 9.83/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.301053"
+  },
+  {
+    "session_id": 85,
+    "summary_text": "Danielle Odonnell completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 22s total. Detected 1 elevated audio spike(s). Overall integrity score: 69.33/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.301671"
+  },
+  {
+    "session_id": 86,
+    "summary_text": "Benjamin Ware completed the examination session. Recorded 10 tab-switch event(s). Focus was lost 12 time(s). Face was absent for 4m 18s total. Multiple faces detected on 3 occasion(s). Detected 4 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.303031"
+  },
+  {
+    "session_id": 87,
+    "summary_text": "Mary Gomez completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 8s total. Detected 1 elevated audio spike(s). Overall integrity score: 87.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.303598"
+  },
+  {
+    "session_id": 88,
+    "summary_text": "Debra Cobb completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 10s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.304432"
+  },
+  {
+    "session_id": 89,
+    "summary_text": "Debra Cobb completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 32s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 1.67/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.305276"
+  },
+  {
+    "session_id": 90,
+    "summary_text": "Sean Rasmussen completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 47s total. Detected 1 elevated audio spike(s). Overall integrity score: 68.17/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.305908"
+  },
+  {
+    "session_id": 91,
+    "summary_text": "Richard Graham completed the examination session. Recorded 14 tab-switch event(s). Focus was lost 8 time(s). Face was absent for 4m 30s total. Multiple faces detected on 3 occasion(s). Detected 7 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.307245"
+  },
+  {
+    "session_id": 92,
+    "summary_text": "Benjamin Beck completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 4 time(s). Face was absent for 1m 52s total. Multiple faces detected on 1 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 4.33/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.308067"
+  },
+  {
+    "session_id": 93,
+    "summary_text": "Stephanie Gilbert completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 5 time(s). Face was absent for 1m 58s total. Multiple faces detected on 1 occasion(s). Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.308928"
+  },
+  {
+    "session_id": 94,
+    "summary_text": "Stephanie Gilbert completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 4 time(s). Face was absent for 1m 29s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 20.17/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.309665"
+  },
+  {
+    "session_id": 95,
+    "summary_text": "John Santana completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 8s total. Detected 1 elevated audio spike(s). Overall integrity score: 79.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.310224"
+  },
+  {
+    "session_id": 96,
+    "summary_text": "John Santana completed the examination session. Focus was lost 2 time(s). Face was absent for 0m 14s total. Overall integrity score: 87.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.310756"
+  },
+  {
+    "session_id": 97,
+    "summary_text": "John Atkinson completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 57s total. Multiple faces detected on 1 occasion(s). Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.311601"
+  },
+  {
+    "session_id": 98,
+    "summary_text": "Colleen Brock completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 49s total. Detected 1 elevated audio spike(s). Overall integrity score: 80.83/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.312148"
+  },
+  {
+    "session_id": 99,
+    "summary_text": "Colleen Brock completed the examination session. Recorded 2 tab-switch event(s). Face was absent for 0m 12s total. Overall integrity score: 82.0/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.312685"
+  },
+  {
+    "session_id": 100,
+    "summary_text": "Michelle Wagner completed the examination session. Recorded 9 tab-switch event(s). Focus was lost 10 time(s). Face was absent for 7m 51s total. Multiple faces detected on 2 occasion(s). Detected 6 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.313920"
+  },
+  {
+    "session_id": 101,
+    "summary_text": "George Orozco completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 49s total. Detected 1 elevated audio spike(s). Overall integrity score: 80.83/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.314467"
+  },
+  {
+    "session_id": 102,
+    "summary_text": "George Orozco completed the examination session. Recorded 1 tab-switch event(s). Face was absent for 0m 21s total. Detected 1 elevated audio spike(s). Overall integrity score: 82.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.315061"
+  },
+  {
+    "session_id": 103,
+    "summary_text": "Taylor Silva completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 17s total. Detected 1 elevated audio spike(s). Overall integrity score: 78.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.315615"
+  },
+  {
+    "session_id": 104,
+    "summary_text": "John Price completed the examination session. Recorded 2 tab-switch event(s). Face was absent for 0m 33s total. Detected 1 elevated audio spike(s). Overall integrity score: 72.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.316177"
+  },
+  {
+    "session_id": 105,
+    "summary_text": "Catherine Green completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 40s total. Detected 1 elevated audio spike(s). Overall integrity score: 69.33/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.316761"
+  },
+  {
+    "session_id": 106,
+    "summary_text": "aafrin completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 31s total. Detected 1 elevated audio spike(s). Overall integrity score: 62.83/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.317363"
+  },
+  {
+    "session_id": 107,
+    "summary_text": "aafrin completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 26s total. Detected 1 elevated audio spike(s). Overall integrity score: 84.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:04:42.317743"
+  },
+  {
+    "session_id": 58,
+    "summary_text": "Session was auto-terminated after exceeding 5 rule violations. aafrin completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 3 time(s). Detected 3 elevated audio spike(s). Overall integrity score: 51.0/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:17:07.905348"
+  },
+  {
+    "session_id": 108,
+    "summary_text": "Session was auto-terminated after exceeding 5 rule violations. aafrin completed the examination session. Multiple faces detected on 5 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 19.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-15T06:45:46.611805"
+  },
+  {
+    "session_id": 109,
+    "summary_text": "Angie Henderson completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 10s total. Detected 1 elevated audio spike(s). Overall integrity score: 87.33/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.863135"
+  },
+  {
+    "session_id": 110,
+    "summary_text": "Angie Henderson completed the examination session. Focus was lost 2 time(s). Face was absent for 0m 39s total. Overall integrity score: 83.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.864291"
+  },
+  {
+    "session_id": 111,
+    "summary_text": "Olivia Moore completed the examination session. Recorded 2 tab-switch event(s). Face was absent for 0m 47s total. Overall integrity score: 76.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.864894"
+  },
+  {
+    "session_id": 112,
+    "summary_text": "Olivia Moore completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 15s total. Detected 1 elevated audio spike(s). Overall integrity score: 78.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.865825"
+  },
+  {
+    "session_id": 113,
+    "summary_text": "Thomas Miller completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 22s total. Overall integrity score: 91.33/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.866593"
+  },
+  {
+    "session_id": 114,
+    "summary_text": "Holly Wood completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 5 time(s). Face was absent for 1m 27s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.867642"
+  },
+  {
+    "session_id": 115,
+    "summary_text": "Crystal Johnson completed the examination session. Recorded 8 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 4m 18s total. Multiple faces detected on 3 occasion(s). Detected 4 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.869027"
+  },
+  {
+    "session_id": 116,
+    "summary_text": "Kimberly Burgess completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 4 time(s). Face was absent for 1m 20s total. Detected 3 elevated audio spike(s). Overall integrity score: 16.67/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.869940"
+  },
+  {
+    "session_id": 117,
+    "summary_text": "Arthur James completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 54s total. Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.871003"
+  },
+  {
+    "session_id": 118,
+    "summary_text": "Arthur James completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 35s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 4.17/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.871953"
+  },
+  {
+    "session_id": 119,
+    "summary_text": "Sherri Baker completed the examination session. Face was absent for 0m 17s total. Detected 1 elevated audio spike(s). Overall integrity score: 91.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.872545"
+  },
+  {
+    "session_id": 120,
+    "summary_text": "Katherine Rodriguez completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 3 time(s). Face was absent for 2m 10s total. Detected 1 elevated audio spike(s). Overall integrity score: 25.33/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.873328"
+  },
+  {
+    "session_id": 121,
+    "summary_text": "Deborah Brennan completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 3 time(s). Face was absent for 1m 33s total. Multiple faces detected on 1 occasion(s). Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.874185"
+  },
+  {
+    "session_id": 122,
+    "summary_text": "Deborah Brennan completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 23s total. Detected 3 elevated audio spike(s). Overall integrity score: 9.17/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.875022"
+  },
+  {
+    "session_id": 123,
+    "summary_text": "Crystal Robinson completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 5s total. Detected 1 elevated audio spike(s). Overall integrity score: 80.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.875621"
+  },
+  {
+    "session_id": 124,
+    "summary_text": "Crystal Robinson completed the examination session. Recorded 1 tab-switch event(s). Face was absent for 0m 9s total. Overall integrity score: 90.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.876161"
+  },
+  {
+    "session_id": 125,
+    "summary_text": "Laura Kennedy completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 47s total. Detected 1 elevated audio spike(s). Overall integrity score: 65.17/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.876787"
+  },
+  {
+    "session_id": 126,
+    "summary_text": "Rebecca Rodriguez completed the examination session. Recorded 2 tab-switch event(s). Face was absent for 0m 18s total. Detected 1 elevated audio spike(s). Overall integrity score: 75.0/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.877365"
+  },
+  {
+    "session_id": 127,
+    "summary_text": "Brandon Molina completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 3 time(s). Face was absent for 1m 42s total. Detected 3 elevated audio spike(s). Overall integrity score: 10.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.878158"
+  },
+  {
+    "session_id": 128,
+    "summary_text": "Michael Cross completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 7s total. Detected 1 elevated audio spike(s). Overall integrity score: 87.83/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.878719"
+  },
+  {
+    "session_id": 129,
+    "summary_text": "Sarah Moore completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 19s total. Detected 1 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.879673"
+  },
+  {
+    "session_id": 130,
+    "summary_text": "Emily Green completed the examination session. Recorded 14 tab-switch event(s). Focus was lost 11 time(s). Face was absent for 4m 56s total. Multiple faces detected on 1 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.881032"
+  },
+  {
+    "session_id": 131,
+    "summary_text": "Emily Green completed the examination session. Recorded 11 tab-switch event(s). Focus was lost 14 time(s). Face was absent for 6m 29s total. Multiple faces detected on 2 occasion(s). Detected 6 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.882479"
+  },
+  {
+    "session_id": 132,
+    "summary_text": "Derek Mahoney completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 14s total. Overall integrity score: 84.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.883084"
+  },
+  {
+    "session_id": 133,
+    "summary_text": "Matthew Mcmillan completed the examination session. Recorded 6 tab-switch event(s). Focus was lost 3 time(s). Face was absent for 1m 31s total. Detected 2 elevated audio spike(s). Overall integrity score: 9.83/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.883922"
+  },
+  {
+    "session_id": 134,
+    "summary_text": "Danielle Odonnell completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 22s total. Detected 1 elevated audio spike(s). Overall integrity score: 69.33/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.884540"
+  },
+  {
+    "session_id": 135,
+    "summary_text": "Benjamin Ware completed the examination session. Recorded 10 tab-switch event(s). Focus was lost 12 time(s). Face was absent for 4m 18s total. Multiple faces detected on 3 occasion(s). Detected 4 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.885847"
+  },
+  {
+    "session_id": 136,
+    "summary_text": "Mary Gomez completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 8s total. Detected 1 elevated audio spike(s). Overall integrity score: 87.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.886440"
+  },
+  {
+    "session_id": 137,
+    "summary_text": "Debra Cobb completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 10s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.887283"
+  },
+  {
+    "session_id": 138,
+    "summary_text": "Debra Cobb completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 6 time(s). Face was absent for 1m 32s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 1.67/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.888169"
+  },
+  {
+    "session_id": 139,
+    "summary_text": "Sean Rasmussen completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 47s total. Detected 1 elevated audio spike(s). Overall integrity score: 68.17/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.888779"
+  },
+  {
+    "session_id": 140,
+    "summary_text": "Richard Graham completed the examination session. Recorded 14 tab-switch event(s). Focus was lost 8 time(s). Face was absent for 4m 30s total. Multiple faces detected on 3 occasion(s). Detected 7 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.890151"
+  },
+  {
+    "session_id": 141,
+    "summary_text": "Benjamin Beck completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 4 time(s). Face was absent for 1m 52s total. Multiple faces detected on 1 occasion(s). Detected 3 elevated audio spike(s). Overall integrity score: 4.33/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.890979"
+  },
+  {
+    "session_id": 142,
+    "summary_text": "Stephanie Gilbert completed the examination session. Recorded 5 tab-switch event(s). Focus was lost 5 time(s). Face was absent for 1m 58s total. Multiple faces detected on 1 occasion(s). Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.891849"
+  },
+  {
+    "session_id": 143,
+    "summary_text": "Stephanie Gilbert completed the examination session. Recorded 3 tab-switch event(s). Focus was lost 4 time(s). Face was absent for 1m 29s total. Multiple faces detected on 1 occasion(s). Detected 1 elevated audio spike(s). Overall integrity score: 20.17/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.892603"
+  },
+  {
+    "session_id": 144,
+    "summary_text": "John Santana completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 8s total. Detected 1 elevated audio spike(s). Overall integrity score: 79.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.893163"
+  },
+  {
+    "session_id": 145,
+    "summary_text": "John Santana completed the examination session. Focus was lost 2 time(s). Face was absent for 0m 14s total. Overall integrity score: 87.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.893697"
+  },
+  {
+    "session_id": 146,
+    "summary_text": "John Atkinson completed the examination session. Recorded 4 tab-switch event(s). Focus was lost 7 time(s). Face was absent for 1m 57s total. Multiple faces detected on 1 occasion(s). Detected 2 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.894562"
+  },
+  {
+    "session_id": 147,
+    "summary_text": "Colleen Brock completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 49s total. Detected 1 elevated audio spike(s). Overall integrity score: 80.83/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.895110"
+  },
+  {
+    "session_id": 148,
+    "summary_text": "Colleen Brock completed the examination session. Recorded 2 tab-switch event(s). Face was absent for 0m 12s total. Overall integrity score: 82.0/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.895659"
+  },
+  {
+    "session_id": 149,
+    "summary_text": "Michelle Wagner completed the examination session. Recorded 9 tab-switch event(s). Focus was lost 10 time(s). Face was absent for 7m 51s total. Multiple faces detected on 2 occasion(s). Detected 6 elevated audio spike(s). Overall integrity score: 0.0/100 \u2014 Risk: High.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.897066"
+  },
+  {
+    "session_id": 150,
+    "summary_text": "George Orozco completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 49s total. Detected 1 elevated audio spike(s). Overall integrity score: 80.83/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.897664"
+  },
+  {
+    "session_id": 151,
+    "summary_text": "George Orozco completed the examination session. Recorded 1 tab-switch event(s). Face was absent for 0m 21s total. Detected 1 elevated audio spike(s). Overall integrity score: 82.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.898224"
+  },
+  {
+    "session_id": 152,
+    "summary_text": "Taylor Silva completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 1 time(s). Face was absent for 0m 17s total. Detected 1 elevated audio spike(s). Overall integrity score: 78.17/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.898798"
+  },
+  {
+    "session_id": 153,
+    "summary_text": "John Price completed the examination session. Recorded 2 tab-switch event(s). Face was absent for 0m 33s total. Detected 1 elevated audio spike(s). Overall integrity score: 72.5/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.899374"
+  },
+  {
+    "session_id": 154,
+    "summary_text": "Catherine Green completed the examination session. Recorded 1 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 40s total. Detected 1 elevated audio spike(s). Overall integrity score: 69.33/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.899963"
+  },
+  {
+    "session_id": 155,
+    "summary_text": "aafrin completed the examination session. Recorded 2 tab-switch event(s). Focus was lost 2 time(s). Face was absent for 0m 31s total. Detected 1 elevated audio spike(s). Overall integrity score: 62.83/100 \u2014 Risk: Medium.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.900580"
+  },
+  {
+    "session_id": 156,
+    "summary_text": "aafrin completed the examination session. Focus was lost 1 time(s). Face was absent for 0m 26s total. Detected 1 elevated audio spike(s). Overall integrity score: 84.67/100 \u2014 Risk: Low.",
+    "model_used": "template",
+    "generated_at": "2026-09-17T06:07:20.900968"
+  }
+]

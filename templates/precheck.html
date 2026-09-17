@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+{% block title %}System check — {{ exam.title }}{% endblock %}
+{% block content %}
+<div id="rulesModal" class="modal-overlay">
+  <div class="modal-box">
+    <h2 style="margin:0 0 0.75rem;font-size:1.25rem;">Exam Rules &amp; Conditions</h2>
+    <p class="text-muted" style="font-size:0.9rem;margin:0 0 1rem;">
+      Accept these rules to proceed with <strong>{{ exam.title }}</strong>.
+    </p>
+    <div class="rules-list">
+      <ol>
+        <li>Only you may appear on camera.</li>
+        <li>Your face must match your registration photo.</li>
+        <li>Do not switch tabs or leave this window.</li>
+        <li>Keep your face visible at all times.</li>
+        <li><strong>More than {{ max_violations }} violations auto-closes the exam.</strong></li>
+      </ol>
+    </div>
+    <label class="rules-accept">
+      <input type="checkbox" id="rulesCheckbox">
+      <span>I have read and agree to the rules and conditions.</span>
+    </label>
+    <div class="flex gap-2 mt-2" style="flex-wrap:wrap;">
+      <button type="button" class="btn btn-primary" id="acceptRulesBtn" disabled>Accept &amp; Continue</button>
+      <a href="{{ url_for('exam.candidate_home') }}" class="btn btn-outline">Cancel</a>
+    </div>
+  </div>
+</div>
+
+<div id="precheckContent" style="max-width:780px;margin:0 auto;display:none;">
+  <h1 style="font-size:1.4rem;margin:0 0 0.25rem;">Identity &amp; system check</h1>
+  <p class="text-muted" style="margin:0 0 1.25rem;">
+    <strong>{{ exam.title }}</strong> · {{ exam.duration_minutes }} min · {{ exam.total_questions }} questions
+  </p>
+
+  <div class="eg-card mb-2">
+    <h2 class="section-title">Step 1 — Camera &amp; microphone</h2>
+    <div class="precheck-grid">
+      <div>
+        <div class="video-wrap">
+          <video id="webcam" autoplay playsinline muted></video>
+          <canvas id="overlay" class="video-overlay"></canvas>
+        </div>
+        <div id="mediaErrorAlert" class="alert alert-danger mt-1" style="display:none;font-size:0.85rem;line-height:1.4;">
+          <strong>Camera or Microphone Blocked!</strong><br>
+          <span id="mediaErrorText">Permission was denied by your browser.</span><br>
+          <div style="margin-top:0.4rem;font-size:0.8rem;color:#7f1d1d;">
+            👉 <strong>How to fix in Chrome/Edge:</strong> Look at the left side of your browser address bar (next to <code>http://localhost:5000</code>), click the <strong>tune / lock / camera icon</strong>, change <strong>Camera</strong> and <strong>Microphone</strong> to <strong>Allow</strong>, then click Retry below.
+          </div>
+          <div style="margin-top:0.6rem;">
+            <button type="button" class="btn btn-primary btn-sm" id="retryMediaBtn">🔄 Retry Permissions</button>
+          </div>
+        </div>
+
+        <div class="mt-1" style="display:flex;flex-wrap:wrap;gap:0.4rem;align-items:center;">
+          <span id="camStatus" class="status-pill status-muted">Camera off</span>
+          <span id="micStatus" class="status-pill status-muted">Mic off</span>
+          <span id="facePill" class="status-pill status-muted">Face…</span>
+          <button type="button" class="btn btn-outline btn-xs" id="retrySmallBtn" style="display:none;">🔄 Retry</button>
+        </div>
+        <div class="mt-1">
+          <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+            <div id="audioBar" style="height:100%;width:0%;background:#2563eb;transition:width .1s;"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <ul class="checklist">
+          <li id="c1" class="pending">Camera permission</li>
+          <li id="c2" class="pending">Face visible (green box)</li>
+          <li id="c3" class="pending">Microphone permission</li>
+          <li id="c4" class="pending">Audio detected</li>
+          <li id="c5" class="pending">Identity matched</li>
+          <li id="c6" class="pending">Rules accepted</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="eg-card mb-2">
+    <h2 class="section-title">Step 2 — Capture &amp; verify your face</h2>
+    <p class="text-muted" style="font-size:0.9rem;margin:0 0 1rem;">
+      Wait for the <strong>green box</strong> on your face, then click the button.
+      The system will analyse the photo and show MATCHED or NOT MATCHED.
+    </p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-start;">
+      <div>
+        <button type="button" class="btn btn-primary" id="captureBtn" disabled>Capture &amp; Verify Identity</button>
+        <p id="verifyMsg" class="text-muted" style="font-size:0.85rem;margin:0.6rem 0 0;max-width:320px;"></p>
+      </div>
+      <div id="snapshotBox" style="display:none;">
+        <p style="font-size:0.8rem;color:var(--muted);margin:0 0 0.35rem;">Captured snapshot</p>
+        <img id="snapshotImg" alt="snapshot" style="width:140px;border-radius:8px;border:2px solid var(--border);">
+      </div>
+      <div id="matchResultBox" style="display:none;min-width:180px;">
+        <div id="matchResultBadge" class="status-pill status-muted" style="font-size:0.95rem;padding:0.5rem 0.85rem;"></div>
+        <p id="matchScoreText" class="text-muted" style="font-size:0.8rem;margin:0.4rem 0 0;"></p>
+      </div>
+    </div>
+  </div>
+
+  <form method="POST" action="{{ url_for('exam.start_session', exam_id=exam.id) }}" id="startForm">
+    <input type="hidden" name="media_ready" id="mediaReady" value="0">
+    <input type="hidden" name="face_verified" id="faceVerified" value="0">
+    <input type="hidden" name="rules_accepted" id="rulesAccepted" value="0">
+    <div class="flex gap-2" style="flex-wrap:wrap;">
+      <button type="submit" class="btn btn-primary" id="startBtn" disabled>Start assessment</button>
+      <a href="{{ url_for('exam.candidate_home') }}" class="btn btn-outline">Cancel</a>
+    </div>
+    <p id="hint" class="text-muted mt-1" style="font-size:0.85rem;"></p>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+import {
+  FaceDetector,
+  FilesetResolver
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm";
+
+const video = document.getElementById('webcam');
+const overlay = document.getElementById('overlay');
+const camStatus = document.getElementById('camStatus');
+const micStatus = document.getElementById('micStatus');
+const facePill = document.getElementById('facePill');
+const audioBar = document.getElementById('audioBar');
+const startBtn = document.getElementById('startBtn');
+const captureBtn = document.getElementById('captureBtn');
+const mediaReady = document.getElementById('mediaReady');
+const faceVerified = document.getElementById('faceVerified');
+const rulesAccepted = document.getElementById('rulesAccepted');
+const hint = document.getElementById('hint');
+const rulesModal = document.getElementById('rulesModal');
+const rulesCheckbox = document.getElementById('rulesCheckbox');
+const acceptRulesBtn = document.getElementById('acceptRulesBtn');
+const precheckContent = document.getElementById('precheckContent');
+const verifyMsg = document.getElementById('verifyMsg');
+const snapshotBox = document.getElementById('snapshotBox');
+const snapshotImg = document.getElementById('snapshotImg');
+const matchResultBox = document.getElementById('matchResultBox');
+const matchResultBadge = document.getElementById('matchResultBadge');
+const matchScoreText = document.getElementById('matchScoreText');
+const mediaErrorAlert = document.getElementById('mediaErrorAlert');
+const mediaErrorText = document.getElementById('mediaErrorText');
+const retryMediaBtn = document.getElementById('retryMediaBtn');
+const retrySmallBtn = document.getElementById('retrySmallBtn');
+
+const checks = { cam: false, face: false, mic: false, audio: false, match: false, rules: false };
+let faceDetector = null;
+let lastFaces = [];
+let mediaStarted = false;
+let animId = null;
+
+function setCheck(id, ok) {
+  const el = document.getElementById(id);
+  if (el) el.className = ok ? 'ok' : 'pending';
+}
+
+function updateReady() {
+  const all = checks.cam && checks.face && checks.mic && checks.audio && checks.match && checks.rules;
+  startBtn.disabled = !all;
+  captureBtn.disabled = !checks.cam;
+  mediaReady.value = (checks.cam && checks.mic) ? '1' : '0';
+  faceVerified.value = checks.match ? '1' : '0';
+  if (all) hint.textContent = 'All checks passed. You can start the assessment.';
+  else if (!checks.face) hint.textContent = 'Centre your face until the green box appears.';
+  else if (!checks.match) hint.textContent = 'Click “Capture & Verify Identity”.';
+  else hint.textContent = 'Finish remaining checks.';
+}
+
+function drawBoxes(faces, color) {
+  lastFaces = faces || [];
+  const ctx = overlay.getContext('2d');
+  const vw = video.videoWidth || 1;
+  const vh = video.videoHeight || 1;
+  const cw = video.clientWidth || 320;
+  const ch = video.clientHeight || 240;
+  overlay.width = cw;
+  overlay.height = ch;
+  const sx = cw / vw;
+  const sy = ch / vh;
+  ctx.clearRect(0, 0, cw, ch);
+  lastFaces.forEach(f => {
+    ctx.strokeStyle = color || '#16a34a';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(f.x * sx, f.y * sy, f.w * sx, f.h * sy);
+  });
+}
+
+function grabFrameDataUrl() {
+  const c = document.createElement('canvas');
+  c.width = video.videoWidth;
+  c.height = video.videoHeight;
+  c.getContext('2d').drawImage(video, 0, 0);
+  return c.toDataURL('image/jpeg', 0.92);
+}
+
+async function initFaceDetector() {
+  verifyMsg.textContent = 'Loading face detector…';
+  try {
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+    );
+    faceDetector = await FaceDetector.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath:
+          "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
+        delegate: "GPU"
+      },
+      runningMode: "VIDEO",
+      minDetectionConfidence: 0.4
+    });
+    verifyMsg.textContent = 'Face detector ready.';
+    return true;
+  } catch (e) {
+    console.warn('MediaPipe GPU failed, trying CPU', e);
+    try {
+      const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+      );
+      faceDetector = await FaceDetector.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath:
+            "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
+          delegate: "CPU"
+        },
+        runningMode: "VIDEO",
+        minDetectionConfidence: 0.4
+      });
+      verifyMsg.textContent = 'Face detector ready (CPU).';
+      return true;
+    } catch (e2) {
+      console.error(e2);
+      verifyMsg.textContent = 'Could not load face detector (check internet). You can still try Capture.';
+      return false;
+    }
+  }
+}
+
+function detectionLoop() {
+  if (!video.srcObject || !video.videoWidth) {
+    animId = requestAnimationFrame(detectionLoop);
+    return;
+  }
+  if (faceDetector) {
+    try {
+      const result = faceDetector.detectForVideo(video, performance.now());
+      const detections = (result && result.detections) || [];
+      if (detections.length > 0) {
+        const faces = detections.map(d => {
+          const bb = d.boundingBox;
+          return {
+            x: Math.round(bb.originX),
+            y: Math.round(bb.originY),
+            w: Math.round(bb.width),
+            h: Math.round(bb.height)
+          };
+        });
+        checks.face = true;
+        setCheck('c2', true);
+        facePill.textContent = 'Face found';
+        facePill.className = 'status-pill status-ok';
+        drawBoxes(faces, '#16a34a');
+        updateReady();
+      } else {
+        checks.face = false;
+        setCheck('c2', false);
+        facePill.textContent = 'No face';
+        facePill.className = 'status-pill status-bad';
+        drawBoxes([]);
+        updateReady();
+      }
+    } catch (e) {
+      // ignore frame errors
+    }
+  }
+  animId = requestAnimationFrame(detectionLoop);
+}
+
+rulesCheckbox.addEventListener('change', () => {
+  acceptRulesBtn.disabled = !rulesCheckbox.checked;
+});
+
+acceptRulesBtn.addEventListener('click', async () => {
+  checks.rules = true;
+  setCheck('c6', true);
+  rulesAccepted.value = '1';
+  rulesModal.style.display = 'none';
+  precheckContent.style.display = 'block';
+  updateReady();
+  await initFaceDetector();
+  setTimeout(startMedia, 100);
+});
+
+async function startMedia() {
+  if (mediaStarted) return;
+  mediaStarted = true;
+  mediaErrorAlert.style.display = 'none';
+  retrySmallBtn.style.display = 'none';
+
+  let stream = null;
+  let audioStream = null;
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+      audio: true
+    });
+  } catch (err) {
+    console.warn("Combined video+audio failed, trying fallback...", err);
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+      });
+    } catch (vErr) {
+      console.error("Video failed:", vErr);
+    }
+    try {
+      audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (aErr) {
+      console.error("Audio failed:", aErr);
+    }
+  }
+
+  if (!stream) {
+    mediaStarted = false;
+    camStatus.textContent = 'Denied';
+    camStatus.className = 'status-pill status-bad';
+    mediaErrorAlert.style.display = 'block';
+    retrySmallBtn.style.display = 'inline-block';
+    verifyMsg.textContent = 'Camera blocked or not found. See alert box above.';
+    return;
+  }
+
+  video.srcObject = stream;
+  video.muted = true;
+  await video.play().catch(() => {});
+
+  await new Promise(resolve => {
+    if (video.videoWidth) return resolve();
+    video.onloadedmetadata = () => resolve();
+    setTimeout(resolve, 3000);
+  });
+
+  checks.cam = true;
+  setCheck('c1', true);
+  camStatus.textContent = 'Camera OK';
+  camStatus.className = 'status-pill status-ok';
+  mediaErrorAlert.style.display = 'none';
+  retrySmallBtn.style.display = 'none';
+  captureBtn.disabled = false;
+
+  const micStream = audioStream || (stream.getAudioTracks().length ? stream : null);
+  if (micStream) {
+    checks.mic = true;
+    setCheck('c3', true);
+    micStatus.textContent = 'Mic OK';
+    micStatus.className = 'status-pill status-ok';
+    try {
+      const actx = new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') {
+        const resumeActx = () => { if (actx.state === 'suspended') actx.resume().catch(() => {}); };
+        window.addEventListener('click', resumeActx, { once: true });
+        actx.resume().catch(() => {});
+      }
+      const src = actx.createMediaStreamSource(micStream);
+      const analyser = actx.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.25;
+      src.connect(analyser);
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      (function meter() {
+        analyser.getByteFrequencyData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) sum += data[i];
+        const avg = sum / data.length;
+        const percent = Math.min(100, Math.round((avg / 28) * 100));
+        audioBar.style.width = Math.max(percent > 2 ? percent : 2, 2) + '%';
+
+        if (percent > 65) {
+          audioBar.style.background = '#ef4444';
+        } else if (percent > 12) {
+          audioBar.style.background = '#10b981';
+          if (!checks.audio) {
+            checks.audio = true;
+            setCheck('c4', true);
+            updateReady();
+          }
+        } else {
+          audioBar.style.background = '#3b82f6';
+        }
+
+        if (avg > 4 && !checks.audio) {
+          checks.audio = true;
+          setCheck('c4', true);
+          updateReady();
+        }
+        requestAnimationFrame(meter);
+      })();
+    } catch (e) {
+      checks.audio = true;
+      setCheck('c4', true);
+    }
+  } else {
+    checks.mic = true;
+    checks.audio = true;
+    setCheck('c3', true);
+    setCheck('c4', true);
+    micStatus.textContent = 'Mic N/A';
+  }
+
+  detectionLoop();
+  updateReady();
+}
+
+retryMediaBtn.addEventListener('click', () => {
+  mediaStarted = false;
+  startMedia();
+});
+retrySmallBtn.addEventListener('click', () => {
+  mediaStarted = false;
+  startMedia();
+});
+
+captureBtn.addEventListener('click', async () => {
+  if (!video.srcObject || !video.videoWidth) {
+    verifyMsg.textContent = 'Camera not ready.';
+    return;
+  }
+  captureBtn.disabled = true;
+  verifyMsg.textContent = 'Capturing & analysing…';
+  matchResultBox.style.display = 'none';
+
+  // One more detection right before capture
+  let faces = lastFaces.slice();
+  if (faceDetector) {
+    try {
+      const result = faceDetector.detectForVideo(video, performance.now());
+      const detections = (result && result.detections) || [];
+      if (detections.length) {
+        faces = detections.map(d => ({
+          x: Math.round(d.boundingBox.originX),
+          y: Math.round(d.boundingBox.originY),
+          w: Math.round(d.boundingBox.width),
+          h: Math.round(d.boundingBox.height)
+        }));
+        lastFaces = faces;
+        drawBoxes(faces, '#16a34a');
+      }
+    } catch (e) {}
+  }
+
+  // If still no face box, use a center region so verify can still run
+  if (!faces.length) {
+    const w = video.videoWidth, h = video.videoHeight;
+    const side = Math.floor(Math.min(w, h) * 0.5);
+    faces = [{ x: Math.floor((w - side) / 2), y: Math.floor((h - side) / 2), w: side, h: side }];
+  }
+
+  const dataUrl = grabFrameDataUrl();
+  snapshotImg.src = dataUrl;
+  snapshotBox.style.display = 'block';
+
+  try {
+    const r = await fetch('/api/face-verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: dataUrl, faces: faces })
+    });
+    const res = await r.json();
+    if (res.error) {
+      verifyMsg.textContent = 'Error: ' + res.error;
+      captureBtn.disabled = false;
+      return;
+    }
+
+    matchResultBox.style.display = 'block';
+    drawBoxes(res.faces && res.faces.length ? res.faces : faces, res.verified ? '#16a34a' : '#dc2626');
+
+    if (res.verified) {
+      checks.face = true;
+      checks.match = true;
+      setCheck('c2', true);
+      setCheck('c5', true);
+      faceVerified.value = '1';
+      matchResultBadge.textContent = '✓ MATCHED';
+      matchResultBadge.className = 'status-pill status-ok';
+      matchScoreText.textContent = 'Similarity: ' + (res.similarity != null ? Number(res.similarity).toFixed(2) : '—');
+      verifyMsg.textContent = res.message || 'Identity verified. You may start.';
+    } else if (res.multi_face) {
+      checks.match = false;
+      setCheck('c5', false);
+      faceVerified.value = '0';
+      matchResultBadge.textContent = 'MULTIPLE FACES';
+      matchResultBadge.className = 'status-pill status-bad';
+      matchScoreText.textContent = '';
+      verifyMsg.textContent = res.message || 'Only one person in frame.';
+    } else if (!res.face_present) {
+      checks.match = false;
+      setCheck('c5', false);
+      faceVerified.value = '0';
+      matchResultBadge.textContent = 'NO FACE DETECTED';
+      matchResultBadge.className = 'status-pill status-bad';
+      matchScoreText.textContent = '';
+      verifyMsg.textContent = res.message || 'No face found. Try again.';
+    } else {
+      checks.face = true;
+      checks.match = false;
+      setCheck('c2', true);
+      setCheck('c5', false);
+      faceVerified.value = '0';
+      matchResultBadge.textContent = '✗ NOT MATCHED';
+      matchResultBadge.className = 'status-pill status-bad';
+      matchScoreText.textContent = 'Similarity: ' + (res.similarity != null ? Number(res.similarity).toFixed(2) : '—');
+      verifyMsg.textContent = res.message || 'Does not match registration photo.';
+    }
+    updateReady();
+  } catch (e) {
+    console.error(e);
+    verifyMsg.textContent = 'Could not reach server. Is Flask running?';
+  }
+  captureBtn.disabled = false;
+});
+</script>
+{% endblock %}

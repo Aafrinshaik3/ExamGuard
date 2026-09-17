@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}ExamGuard — Secure Online Examinations{% endblock %}
+{% block content %}
+<style>
+  .gateway-shell {
+    position: relative;
+    min-height: calc(100vh - 64px);
+    margin: -2rem -1.25rem;
+    padding: 2.5rem 1.5rem 3rem;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 90% 70% at 10% 10%, rgba(147, 197, 253, 0.55), transparent 55%),
+      radial-gradient(ellipse 80% 60% at 90% 20%, rgba(186, 230, 253, 0.5), transparent 50%),
+      radial-gradient(ellipse 70% 55% at 50% 100%, rgba(196, 181, 253, 0.4), transparent 55%),
+      linear-gradient(160deg, #eff6ff 0%, #f0f9ff 35%, #f8fafc 70%, #eef2ff 100%);
+    color: #0f172a;
+  }
+  /* Soft floating orbs */
+  .gateway-shell .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.55;
+    pointer-events: none;
+    animation: floatOrb 14s ease-in-out infinite;
+  }
+  .gateway-shell .orb-1 {
+    width: 320px; height: 320px; top: -60px; left: -40px;
+    background: #93c5fd;
+  }
+  .gateway-shell .orb-2 {
+    width: 280px; height: 280px; top: 20%; right: -50px;
+    background: #c4b5fd;
+    animation-delay: -4s;
+    animation-duration: 18s;
+  }
+  .gateway-shell .orb-3 {
+    width: 240px; height: 240px; bottom: 8%; left: 25%;
+    background: #7dd3fc;
+    animation-delay: -8s;
+    animation-duration: 16s;
+  }
+  @keyframes floatOrb {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -25px) scale(1.08); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+  }
+  /* Subtle moving grid */
+  .gateway-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59, 130, 246, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.07) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse at center, black 15%, transparent 72%);
+    pointer-events: none;
+    animation: gridDrift 24s linear infinite;
+  }
+  @keyframes gridDrift {
+    from { background-position: 0 0, 0 0; }
+    to { background-position: 44px 44px, 44px 44px; }
+  }
+  .gateway-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+  .gateway-hero { text-align: center; margin-bottom: 2.25rem; }
+  .gateway-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.75); border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #1d4ed8; padding: 0.35rem 0.9rem; border-radius: 999px;
+    font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.1);
+  }
+  .gateway-badge .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
+    animation: livePulse 1.6s ease-in-out infinite;
+  }
+  @keyframes livePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45); }
+    50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  }
+  .gateway-title {
+    font-size: clamp(1.85rem, 4vw, 2.75rem); font-weight: 800;
+    margin: 0 0 0.75rem; line-height: 1.15; color: #0f172a; letter-spacing: -0.02em;
+  }
+  .gateway-title span {
+    background: linear-gradient(90deg, #2563eb, #0ea5e9, #7c3aed);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .gateway-subtitle {
+    max-width: 640px; margin: 0 auto; font-size: 1.05rem; line-height: 1.6; color: #475569;
+  }
+  .gateway-stats {
+    display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0 0;
+  }
+  .gateway-stat {
+    background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 14px; padding: 0.7rem 1.15rem; min-width: 118px; text-align: center;
+    backdrop-filter: blur(10px); box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+  }
+  .gateway-stat .n { font-size: 1.25rem; font-weight: 700; color: #1e293b; }
+  .gateway-stat .l { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+  .gateway-cards {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.35rem; margin-top: 2rem;
+  }
+  .portal-card {
+    background: rgba(255, 255, 255, 0.88); border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 18px; padding: 1.5rem 1.4rem 1.35rem; backdrop-filter: blur(12px);
+    transition: transform 0.2s ease, border-color 0.2s, box-shadow 0.2s;
+    display: flex; flex-direction: column;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  }
+  .portal-card:hover {
+    transform: translateY(-4px); border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 16px 40px rgba(37, 99, 235, 0.12);
+  }
+  .portal-student { border-top: 3px solid #3b82f6; }
+  .portal-admin { border-top: 3px solid #8b5cf6; }
+  .portal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .portal-icon { font-size: 2rem; }
+  .portal-tag {
+    font-size: 0.72rem; font-weight: 600; padding: 0.25rem 0.65rem; border-radius: 999px;
+    background: #eff6ff; color: #1d4ed8;
+  }
+  .portal-admin .portal-tag { background: #f5f3ff; color: #6d28d9; }
+  .portal-card h2 { margin: 0 0 0.5rem; font-size: 1.35rem; color: #0f172a; }
+  .portal-desc { color: #64748b; font-size: 0.92rem; line-height: 1.55; margin: 0 0 1rem; }
+  .portal-features { list-style: none; padding: 0; margin: 0 0 1.25rem; flex-grow: 1; }
+  .portal-features li {
+    display: flex; gap: 0.5rem; font-size: 0.88rem; color: #334155;
+    margin-bottom: 0.45rem; line-height: 1.4;
+  }
+  .portal-features li span { color: #16a34a; font-weight: 700; }
+  .portal-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+  .portal-actions .btn {
+    text-align: center; border-radius: 10px; font-weight: 600; padding: 0.65rem 1rem;
+  }
+  .portal-actions .btn-primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; color: #fff;
+  }
+  .portal-actions .btn-primary:hover { filter: brightness(1.06); color: #fff; }
+  .portal-actions .btn-dark {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9); border: none; color: #fff;
+  }
+  .portal-actions .btn-dark:hover { filter: brightness(1.06); color: #fff; }
+  .portal-actions .btn-outline {
+    background: #fff; border: 1px solid #cbd5e1; color: #334155;
+  }
+  .portal-actions .btn-outline:hover { background: #f8fafc; color: #0f172a; }
+  .proctor-features-banner {
+    margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 16px; padding: 1.25rem; backdrop-filter: blur(10px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  }
+  .feature-item { display: flex; gap: 0.75rem; align-items: flex-start; }
+  .fi-icon { font-size: 1.5rem; line-height: 1; }
+  .fi-text h4 { margin: 0 0 0.25rem; font-size: 0.95rem; color: #0f172a; }
+  .fi-text p { margin: 0; font-size: 0.82rem; color: #64748b; line-height: 1.45; }
+  .gateway-footer-note { text-align: center; margin-top: 1.75rem; font-size: 0.8rem; color: #64748b; }
+  body { background: #eff6ff !important; }
+  .eg-main:has(.gateway-shell) { max-width: none !important; padding: 0 !important; }
+</style>
+
+<div class="gateway-shell">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="gateway-inner">
+    <div class="gateway-hero">
+      <div class="gateway-badge">
+        <span class="dot"></span>
+        Live proctoring · Multi-domain exams · Integrity analytics
+      </div>
+      <h1 class="gateway-title">Exam<span>Guard</span></h1>
+      <p class="gateway-subtitle">
+        Secure online assessments with real-time face presence, audio monitoring, domain-based eligibility,
+        and AI-assisted integrity reports — for students and invigilators.
+      </p>
+      <div class="gateway-stats">
+        <div class="gateway-stat"><div class="n">🎯</div><div class="l">Face verified</div></div>
+        <div class="gateway-stat"><div class="n">🎙️</div><div class="l">Audio watch</div></div>
+        <div class="gateway-stat"><div class="n">📚</div><div class="l">Multi-domain</div></div>
+        <div class="gateway-stat"><div class="n">📊</div><div class="l">Live analytics</div></div>
+      </div>
+    </div>
+
+    <div class="gateway-cards">
+      <div class="portal-card portal-student">
+        <div class="portal-header">
+          <div class="portal-icon">🎓</div>
+          <div class="portal-tag">Candidates</div>
+        </div>
+        <h2>Student Portal</h2>
+        <p class="portal-desc">
+          Take domain-matched exams with continuous camera checks, microphone monitoring, and a personal progress dashboard.
+        </p>
+        <ul class="portal-features">
+          <li><span>✓</span> Switch domains: B.Tech, CSE, MCA, BA &amp; more</li>
+          <li><span>✓</span> Face match against registration photo</li>
+          <li><span>✓</span> Real-time voice &amp; tab-switch warnings</li>
+          <li><span>✓</span> Progress &amp; integrity analytics after each test</li>
+        </ul>
+        <div class="portal-actions">
+          <a href="{{ url_for('auth.login', role='candidate') }}" class="btn btn-primary btn-block">Student Sign In</a>
+          <a href="{{ url_for('auth.register', role='candidate') }}" class="btn btn-outline btn-block">New Student Register</a>
+        </div>
+      </div>
+
+      <div class="portal-card portal-admin">
+        <div class="portal-header">
+          <div class="portal-icon">🛡️</div>
+          <div class="portal-tag">Invigilators &amp; Faculty</div>
+        </div>
+        <h2>Admin Console</h2>
+        <p class="portal-desc">
+          Live proctoring room, ID verification, exam catalog control, and full cohort analytics — all inside the app.
+        </p>
+        <ul class="portal-features">
+          <li><span>✓</span> Live feed of active candidates</li>
+          <li><span>✓</span> Remote terminate &amp; violation alerts</li>
+          <li><span>✓</span> Student ID review &amp; approvals</li>
+          <li><span>✓</span> Native analytics (no extra server)</li>
+        </ul>
+        <div class="portal-actions">
+          <a href="{{ url_for('auth.login', role='invigilator') }}" class="btn btn-dark btn-block">Admin / Invigilator Sign In</a>
+          <a href="{{ url_for('auth.register', role='invigilator') }}" class="btn btn-outline btn-block">Create Admin Account</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="proctor-features-banner">
+      <div class="feature-item">
+        <div class="fi-icon">👤</div>
+        <div class="fi-text">
+          <h4>Identity &amp; presence</h4>
+          <p>Registration photo match and continuous face presence during the session.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="fi-icon">🎙️</div>
+        <div class="fi-text">
+          <h4>Audio monitoring</h4>
+          <p>Microphone levels flag elevated speech or background coaching in real time.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="fi-icon">🔀</div>
+        <div class="fi-text">
+          <h4>Focus &amp; tab control</h4>
+          <p>Tab switches and focus loss are logged with clear violation limits.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="fi-icon">📈</div>
+        <div class="fi-text">
+          <h4>Integrity reports</h4>
+          <p>Rule-based scores and summaries for every submitted or terminated attempt.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="gateway-footer-note">
+      Secure · Browser-based · Camera &amp; mic required for proctored assessments
+    </p>
+  </div>
+</div>
+{% endblock %}

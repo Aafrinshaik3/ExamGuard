@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Manage Exams — ExamGuard Admin{% endblock %}
+{% block content %}
+<div class="admin-header">
+  <div>
+    <div class="admin-badge">📝 EXAM MANAGEMENT</div>
+    <h1 style="margin:0.25rem 0 0;font-size:1.6rem;">Assessment Catalog &amp; Test Creation</h1>
+    <p class="text-muted" style="margin:0.25rem 0 0;font-size:0.9rem;">
+      Create new proctored online exams, configure test duration, and toggle test availability.
+    </p>
+  </div>
+  <div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline btn-sm">← Back to Overview</a>
+  </div>
+</div>
+
+<div class="split-layout mt-2">
+  <!-- Exam List -->
+  <div style="flex:1.6;">
+    <div class="eg-card" style="padding:0;overflow:hidden;">
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);">
+        <h3 style="margin:0;font-size:1.1rem;">Active Assessment Catalog ({{ exams|length }})</h3>
+      </div>
+      <table class="eg-table">
+        <thead>
+          <tr>
+            <th>Title &amp; Subject</th>
+            <th>Target Eligibility</th>
+            <th>Duration</th>
+            <th>Questions</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ex in exams %}
+          <tr>
+            <td>
+              <div style="font-weight:600;">{{ ex.title }}</div>
+              <div class="text-muted" style="font-size:0.78rem;">{{ ex.subject }} · {{ ex.description }}</div>
+            </td>
+            <td>
+              <span class="badge" style="background:#eff6ff;color:#1d4ed8;font-size:0.75rem;">
+                {{ ex.target_domain or 'All' }}
+              </span>
+              <div class="text-muted" style="font-size:0.75rem;margin-top:0.2rem;">
+                {{ ex.target_department or 'All' }}
+              </div>
+            </td>
+            <td>{{ ex.duration_minutes }} mins</td>
+            <td>{{ ex.total_questions }} Qs</td>
+            <td>
+              {% if ex.is_active %}
+                <span class="badge badge-low">Active</span>
+              {% else %}
+                <span class="badge badge-high">Disabled</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('admin.toggle_exam', exam_id=ex.id) }}">
+                {% if ex.is_active %}
+                  <button type="submit" class="btn btn-outline btn-sm">Disable</button>
+                {% else %}
+                  <button type="submit" class="btn btn-primary btn-sm">Enable</button>
+                {% endif %}
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-muted" style="padding:2rem;">No exams created yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Create New Exam Form -->
+  <div style="flex:1;">
+    <div class="eg-card">
+      <h3 style="margin:0 0 1rem;font-size:1.1rem;">Create New Assessment</h3>
+      <form method="POST" action="{{ url_for('admin.manage_exams') }}">
+        <div class="form-group">
+          <label>Exam Title</label>
+          <input type="text" name="title" class="form-control" required placeholder="e.g. Operating Systems Quiz">
+        </div>
+        <div class="form-group">
+          <label>Subject / Stream</label>
+          <input type="text" name="subject" class="form-control" required placeholder="e.g. Computer Science">
+        </div>
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div class="form-group">
+            <label>Target Domain</label>
+            <select name="target_domain" class="form-control">
+              <option value="All">All Domains (Open)</option>
+              <option value="B.Tech">B.Tech</option>
+              <option value="MCA">MCA</option>
+              <option value="BA">BA</option>
+              <option value="B.Sc">B.Sc</option>
+              <option value="MBA">MBA</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Target Department</label>
+            <input type="text" name="target_department" class="form-control" placeholder="e.g. CSE / All" value="All">
+          </div>
+        </div>
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div class="form-group">
+            <label>Duration (Minutes)</label>
+            <input type="number" name="duration_minutes" class="form-control" value="60" min="5" max="300" required>
+          </div>
+          <div class="form-group">
+            <label>Total Questions</label>
+            <input type="number" name="total_questions" class="form-control" value="5" min="1" max="100" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Brief Description</label>
+          <textarea name="description" class="form-control" rows="3" placeholder="Syllabus or topics covered in this exam"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Add Assessment to Catalog</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

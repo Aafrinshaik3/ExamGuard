@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Identity Verification — ExamGuard{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card" style="max-width:480px;">
+    <h1>Verify your identity</h1>
+    <p class="sub">Upload a government or college ID so invigilators can confirm you are the registered candidate.</p>
+    <form method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label>ID type</label>
+        <select name="id_type" class="form-control" required>
+          <option value="">Select…</option>
+          <option value="aadhaar">Aadhaar Card</option>
+          <option value="college_id">College / University ID</option>
+          <option value="passport">Passport</option>
+          <option value="driving_license">Driving Licence</option>
+          <option value="other">Other government ID</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ID number</label>
+        <input type="text" name="id_number" class="form-control" required placeholder="e.g. XXXX-XXXX-XXXX or roll number">
+      </div>
+      <div class="form-group">
+        <label>Upload ID document</label>
+        <input type="file" name="id_document" class="form-control" accept=".jpg,.jpeg,.png,.pdf,.webp" required>
+        <p class="text-muted" style="font-size:0.8rem;margin-top:0.35rem;">Clear photo or scan. JPG, PNG or PDF. Max 8 MB.</p>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Submit for verification</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

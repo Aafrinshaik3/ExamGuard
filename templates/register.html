@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+{% block title %}Create Account — ExamGuard{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card" style="max-width:540px;">
+    <div class="auth-header-tabs mb-2">
+      <button type="button" class="tab-btn {% if role_hint != 'invigilator' %}active{% endif %}" id="tabRegStudent" onclick="setRegRole('candidate')">
+        🎓 Student Registration
+      </button>
+      <button type="button" class="tab-btn {% if role_hint == 'invigilator' %}active{% endif %}" id="tabRegAdmin" onclick="setRegRole('invigilator')">
+        🛡️ Admin Registration
+      </button>
+    </div>
+
+    <h1 id="regHeading">Create Student Account</h1>
+    <p class="sub" id="regSub">Register as a candidate. You’ll verify your identity with webcam capture.</p>
+
+    <form method="POST" id="regForm">
+      <input type="hidden" name="role" id="roleInput" value="{{ role_hint if role_hint in ('candidate', 'invigilator') else 'candidate' }}">
+
+      <div class="form-group">
+        <label>Full name</label>
+        <input type="text" name="full_name" class="form-control" required placeholder="Full Name as on Official ID">
+      </div>
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" name="email" class="form-control" required placeholder="name@college.edu">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" class="form-control" required minlength="6" placeholder="Min. 6 characters">
+      </div>
+
+      <!-- College / University (Universal) -->
+      <div class="form-group">
+        <label for="collegeInput" id="collegeLabel">College / University Name</label>
+        <input type="text" name="college" id="collegeInput" class="form-control" required placeholder="e.g. Oxford Institute of Technology / JNTU">
+      </div>
+
+      <!-- Student Specific Academic Profile Fields -->
+      <div id="studentAcademicFields">
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div class="form-group">
+            <label for="academicStatusSelect">Current Academic Status</label>
+            <select name="academic_status" id="academicStatusSelect" class="form-control" onchange="onStatusChange()">
+              <option value="Currently Studying" selected>Currently Studying</option>
+              <option value="Graduated">Graduated</option>
+              <option value="Beginner">Beginner / Self-Learner</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="domainSelect">Domain / Degree Program</label>
+            <select name="domain" id="domainSelect" class="form-control" onchange="onDomainChange()">
+              <option value="B.Tech" selected>B.Tech (Engineering)</option>
+              <option value="MCA">MCA (Computer Applications)</option>
+              <option value="BA">BA (Arts &amp; Humanities)</option>
+              <option value="B.Sc">B.Sc (Sciences)</option>
+              <option value="B.Com">B.Com (Commerce)</option>
+              <option value="M.Tech">M.Tech (Postgraduate Tech)</option>
+              <option value="MBA">MBA (Management)</option>
+              <option value="Other">Other / Interdisciplinary</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div class="form-group">
+            <label for="departmentSelect">Department / Specialization</label>
+            <select name="department" id="departmentSelect" class="form-control">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="yearSelect" id="yearLabel">Year of Study</label>
+            <select name="year_of_study" id="yearSelect" class="form-control">
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year" selected>4th Year</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invigilator Specific Department Field -->
+      <div class="form-group" id="invigilatorDeptGroup" style="display:none;">
+        <label for="invigDeptInput">Faculty / Department Division</label>
+        <input type="text" name="invig_department" id="invigDeptInput" class="form-control" placeholder="e.g. Dept of Computer Science &amp; Engineering">
+      </div>
+
+      <!-- Admin Passkey Field (Shown only for Admin role) -->
+      <div class="form-group" id="adminPasskeyGroup" style="display:none;">
+        <label>Admin Passkey</label>
+        <input type="password" name="admin_passkey" id="adminPasskeyInput" class="form-control" placeholder="Enter administrative authorization key">
+      </div>
+
+      <!-- Student Face Photo Webcam Field (Shown only for Student role) -->
+      <div class="form-group" id="studentCamGroup">
+        <label>Face Reference Photo (Webcam)</label>
+        <p class="text-muted" style="font-size:0.8rem;margin:0 0 0.5rem;">
+          Required for facial recognition and presence verification during proctored exams.
+        </p>
+        <div class="cam-box">
+          <video id="webcam" autoplay playsinline muted></video>
+          <canvas id="canvas" style="display:none;"></canvas>
+          <div class="mt-1" style="display:flex;align-items:center;gap:0.75rem;">
+            <button type="button" class="btn btn-outline btn-sm" id="captureBtn">📸 Capture Photo</button>
+            <span id="captureStatus" class="text-muted" style="font-size:0.82rem;">No photo captured yet</span>
+          </div>
+          <img id="preview" class="preview mt-1" style="display:none;max-height:160px;border-radius:8px;border:2px solid var(--border);">
+        </div>
+        <input type="hidden" name="photo_data" id="photo_data">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="regSubmitBtn">Create Account</button>
+    </form>
+
+    <p class="text-center text-muted mt-2" style="font-size:0.9rem;">
+      Already registered? <a href="{{ url_for('auth.login') }}">Sign in here</a>
+    </p>
+    <div class="text-center mt-1" style="font-size:0.82rem;">
+      <a href="{{ url_for('auth.index') }}" class="text-muted">← Back to Portal Selection</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const video = document.getElementById('webcam');
+const canvas = document.getElementById('canvas');
+const preview = document.getElementById('preview');
+const photoInput = document.getElementById('photo_data');
+const captureStatus = document.getElementById('captureStatus');
+const roleInput = document.getElementById('roleInput');
+const studentCamGroup = document.getElementById('studentCamGroup');
+const studentAcademicFields = document.getElementById('studentAcademicFields');
+const invigilatorDeptGroup = document.getElementById('invigilatorDeptGroup');
+const collegeLabel = document.getElementById('collegeLabel');
+const collegeInput = document.getElementById('collegeInput');
+const adminPasskeyGroup = document.getElementById('adminPasskeyGroup');
+const regHeading = document.getElementById('regHeading');
+const regSub = document.getElementById('regSub');
+const regSubmitBtn = document.getElementById('regSubmitBtn');
+const tabRegStudent = document.getElementById('tabRegStudent');
+const tabRegAdmin = document.getElementById('tabRegAdmin');
+
+const domainSelect = document.getElementById('domainSelect');
+const departmentSelect = document.getElementById('departmentSelect');
+const academicStatusSelect = document.getElementById('academicStatusSelect');
+const yearSelect = document.getElementById('yearSelect');
+const yearLabel = document.getElementById('yearLabel');
+
+const DEPARTMENTS = {
+  "B.Tech": [
+    "Computer Science & Engineering (CSE)",
+    "Electronics & Communication Engineering (ECE)",
+    "Artificial Intelligence & Data Science (AI & DS)",
+    "Electrical & Electronics Engineering (EEE)",
+    "Mechanical Engineering (MECH)",
+    "Civil Engineering",
+    "Information Technology (IT)"
+  ],
+  "MCA": [
+    "Computer Applications",
+    "Enterprise Software Development",
+    "Cloud Computing & DevOps",
+    "Data Science & Analytics"
+  ],
+  "BA": [
+    "English Literature",
+    "Economics",
+    "Political Science",
+    "History",
+    "Psychology"
+  ],
+  "B.Sc": [
+    "Computer Science",
+    "Physics",
+    "Mathematics",
+    "Data Science & Statistics",
+    "Chemistry"
+  ],
+  "B.Com": [
+    "Accounting & Finance",
+    "Banking & Insurance",
+    "Corporate Taxation",
+    "Computer Applications"
+  ],
+  "M.Tech": [
+    "Computer Science & Engineering",
+    "VLSI & Embedded Systems",
+    "Power Electronics & Drives",
+    "Thermal & Design Engineering"
+  ],
+  "MBA": [
+    "Finance & Banking",
+    "Marketing & Strategy",
+    "Human Resources Management",
+    "Business Analytics & IT"
+  ],
+  "Other": [
+    "General / Interdisciplinary Studies"
+  ]
+};
+
+function onDomainChange() {
+  const dom = domainSelect.value;
+  const list = DEPARTMENTS[dom] || ["General Studies"];
+  departmentSelect.innerHTML = "";
+  list.forEach(dept => {
+    const opt = document.createElement("option");
+    opt.value = dept;
+    opt.textContent = dept;
+    departmentSelect.appendChild(opt);
+  });
+}
+
+function onStatusChange() {
+  const status = academicStatusSelect.value;
+  yearSelect.innerHTML = "";
+  if (status === "Currently Studying") {
+    yearLabel.textContent = "Year of Study";
+    ["1st Year", "2nd Year", "3rd Year", "4th Year"].forEach(y => {
+      const opt = document.createElement("option");
+      opt.value = y;
+      opt.textContent = y;
+      if (y === "4th Year") opt.selected = true;
+      yearSelect.appendChild(opt);
+    });
+  } else if (status === "Graduated") {
+    yearLabel.textContent = "Graduation Batch";
+    ["Graduated (2026 Batch)", "Graduated (2025 Batch)", "Graduated (2024 or earlier)"].forEach(y => {
+      const opt = document.createElement("option");
+      opt.value = y;
+      opt.textContent = y;
+      yearSelect.appendChild(opt);
+    });
+  } else {
+    yearLabel.textContent = "Foundation Level";
+    const opt = document.createElement("option");
+    opt.value = "Beginner / Self-Learner";
+    opt.textContent = "Beginner / Self-Learner";
+    opt.selected = true;
+    yearSelect.appendChild(opt);
+  }
+}
+
+let streamActive = false;
+
+function startCamera() {
+  if (streamActive) return;
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 480, height: 360 } })
+    .then(s => {
+      video.srcObject = s;
+      streamActive = true;
+    })
+    .catch(() => {
+      video.style.display = 'none';
+      captureStatus.textContent = 'Camera not accessible or permission denied.';
+      captureStatus.style.color = 'var(--danger)';
+    });
+}
+
+function stopCamera() {
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    streamActive = false;
+  }
+}
+
+function setRegRole(role) {
+  roleInput.value = role;
+  if (role === 'invigilator') {
+    tabRegStudent.classList.remove('active');
+    tabRegAdmin.classList.add('active');
+    studentCamGroup.style.display = 'none';
+    studentAcademicFields.style.display = 'none';
+    invigilatorDeptGroup.style.display = 'block';
+    adminPasskeyGroup.style.display = 'block';
+    collegeLabel.textContent = "Institution / Organization";
+    collegeInput.placeholder = "e.g. University Examination Cell";
+    regHeading.textContent = 'Create Admin / Invigilator Account';
+    regSub.textContent = 'Register with an authorized admin passkey to proctor exams.';
+    regSubmitBtn.className = 'btn btn-dark btn-block';
+    stopCamera();
+  } else {
+    tabRegAdmin.classList.remove('active');
+    tabRegStudent.classList.add('active');
+    studentCamGroup.style.display = 'block';
+    studentAcademicFields.style.display = 'block';
+    invigilatorDeptGroup.style.display = 'none';
+    adminPasskeyGroup.style.display = 'none';
+    collegeLabel.textContent = "College / University Name";
+    collegeInput.placeholder = "e.g. Oxford Institute of Technology / JNTU";
+    regHeading.textContent = 'Create Student Account';
+    regSub.textContent = 'Register as a candidate. You’ll verify your identity with webcam capture.';
+    regSubmitBtn.className = 'btn btn-primary btn-block';
+    startCamera();
+  }
+}
+
+document.getElementById('captureBtn').onclick = () => {
+  canvas.width = video.videoWidth || 320;
+  canvas.height = video.videoHeight || 240;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const data = canvas.toDataURL('image/jpeg', 0.9);
+  photoInput.value = data;
+  preview.src = data;
+  preview.style.display = 'block';
+  captureStatus.textContent = '✓ Photo captured successfully!';
+  captureStatus.style.color = 'var(--success)';
+};
+
+// Initialize dynamic fields
+onDomainChange();
+onStatusChange();
+
+{% if role_hint == 'invigilator' %}
+setRegRole('invigilator');
+{% else %}
+setRegRole('candidate');
+{% endif %}
+</script>
+{% endblock %}

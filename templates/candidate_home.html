@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+{% block title %}Student Portal &amp; Dashboard — ExamGuard{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:flex-end;gap:0.5rem;margin-bottom:0.75rem;flex-wrap:wrap;">
+  <a href="{{ url_for('exam.progress') }}" class="btn btn-primary btn-sm">📊 My Progress &amp; Analytics</a>
+</div>
+
+<!-- Student Profile & Academic Details Header -->
+<div class="eg-card mb-2 student-profile-banner" style="border-left: 4px solid var(--primary); background: linear-gradient(135deg, rgba(37,99,235,0.04) 0%, rgba(255,255,255,0) 100%);">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+    <div style="display:flex;align-items:center;gap:1.25rem;">
+      <div style="position:relative;">
+        {% if current_user.photo_path %}
+          <img src="/static/{{ current_user.photo_path }}" alt="Face photo" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        {% else %}
+          <div style="width:72px;height:72px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;">
+            {{ current_user.full_name[:1] }}
+          </div>
+        {% endif %}
+        {% if current_user.id_verified %}
+          <span style="position:absolute;bottom:0;right:0;background:var(--success);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;border:2px solid #fff;" title="Identity Verified">✓</span>
+        {% endif %}
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+          <h1 style="margin:0;font-size:1.5rem;font-weight:700;">{{ current_user.full_name }}</h1>
+          <span class="badge badge-student" style="font-size:0.75rem;">🎓 Candidate</span>
+          {% if current_user.id_verified %}
+            <span class="badge badge-low" style="font-size:0.72rem;">✓ ID Verified</span>
+          {% else %}
+            <a href="{{ url_for('auth.verify_id') }}" class="badge badge-high" style="font-size:0.72rem;text-decoration:none;">⚠ Verify ID</a>
+          {% endif %}
+        </div>
+        <p class="text-muted" style="margin:0.2rem 0 0.5rem;font-size:0.88rem;">
+          {{ current_user.email }}
+          {% if current_user.id_number %} · ID: <strong>{{ current_user.id_number }}</strong>{% endif %}
+        </p>
+
+        <!-- Academic Profile Badges -->
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;font-size:0.82rem;">
+          <span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:600;">
+            🏛️ {{ current_user.college or 'University / College Not Set' }}
+          </span>
+          <span class="badge" style="background:#fef3c7;color:#92400e;font-weight:600;">
+            📜 {{ current_user.academic_status or 'Currently Studying' }}
+          </span>
+          <span class="badge" style="background:#f3e8ff;color:#6b21a8;font-weight:600;">
+            📐 {{ current_user.domain or 'B.Tech' }} · {{ current_user.department or 'Computer Science' }}
+          </span>
+          <span class="badge" style="background:#dcfce7;color:#166534;font-weight:600;">
+            📅 {{ current_user.year_of_study or 'Year Not Set' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Profile Edit Button -->
+    <div>
+      <button type="button" class="btn btn-outline btn-sm" onclick="toggleEditProfile()">
+        ✏️ Edit Academic Details
+      </button>
+    </div>
+  </div>
+
+  <!-- Collapsible Edit Profile Form -->
+  <div id="editProfileSection" style="display:none;margin-top:1.25rem;padding-top:1.25rem;border-top:1px dashed var(--border);">
+    <h3 style="font-size:1.05rem;margin:0 0 0.75rem;">Update Academic Profile &amp; Enrollment</h3>
+    <form method="POST" action="{{ url_for('auth.update_profile') }}">
+      <div class="form-row" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:0.75rem;">
+        <div class="form-group">
+          <label style="font-size:0.82rem;">Full Name</label>
+          <input type="text" name="full_name" class="form-control" value="{{ current_user.full_name }}" required>
+        </div>
+        <div class="form-group">
+          <label style="font-size:0.82rem;">College / University</label>
+          <input type="text" name="college" class="form-control" value="{{ current_user.college or '' }}" placeholder="College Name" required>
+        </div>
+        <div class="form-group">
+          <label style="font-size:0.82rem;">Academic Status</label>
+          <select name="academic_status" id="editStatusSelect" class="form-control" onchange="onEditStatusChange()">
+            <option value="Currently Studying" {% if current_user.academic_status == 'Currently Studying' %}selected{% endif %}>Currently Studying</option>
+            <option value="Graduated" {% if current_user.academic_status == 'Graduated' %}selected{% endif %}>Graduated</option>
+            <option value="Beginner" {% if current_user.academic_status == 'Beginner' %}selected{% endif %}>Beginner / Self-Learner</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label style="font-size:0.82rem;">Domain / Degree</label>
+          <select name="domain" id="editDomainSelect" class="form-control" onchange="onEditDomainChange()">
+            <option value="B.Tech" {% if current_user.domain == 'B.Tech' %}selected{% endif %}>B.Tech</option>
+            <option value="MCA" {% if current_user.domain == 'MCA' %}selected{% endif %}>MCA</option>
+            <option value="BA" {% if current_user.domain == 'BA' %}selected{% endif %}>BA</option>
+            <option value="B.Sc" {% if current_user.domain == 'B.Sc' %}selected{% endif %}>B.Sc</option>
+            <option value="B.Com" {% if current_user.domain == 'B.Com' %}selected{% endif %}>B.Com</option>
+            <option value="M.Tech" {% if current_user.domain == 'M.Tech' %}selected{% endif %}>M.Tech</option>
+            <option value="MBA" {% if current_user.domain == 'MBA' %}selected{% endif %}>MBA</option>
+            <option value="Other" {% if current_user.domain == 'Other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label style="font-size:0.82rem;">Department</label>
+          <input type="text" name="department" id="editDeptInput" class="form-control" value="{{ current_user.department or '' }}" placeholder="e.g. Computer Science &amp; Engineering (CSE)">
+        </div>
+        <div class="form-group">
+          <label style="font-size:0.82rem;">Year of Study</label>
+          <select name="year_of_study" id="editYearSelect" class="form-control">
+            <option value="1st Year" {% if current_user.year_of_study == '1st Year' %}selected{% endif %}>1st Year</option>
+            <option value="2nd Year" {% if current_user.year_of_study == '2nd Year' %}selected{% endif %}>2nd Year</option>
+            <option value="3rd Year" {% if current_user.year_of_study == '3rd Year' %}selected{% endif %}>3rd Year</option>
+            <option value="4th Year" {% if current_user.year_of_study == '4th Year' %}selected{% endif %}>4th Year</option>
+            <option value="Graduated" {% if 'Graduated' in (current_user.year_of_study or '') %}selected{% endif %}>Graduated / Alumni</option>
+            <option value="Beginner / Self-Learner" {% if 'Beginner' in (current_user.year_of_study or '') %}selected{% endif %}>Beginner / Self-Learner</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+        <button type="submit" class="btn btn-primary btn-sm">Save Profile Changes</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="toggleEditProfile()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# Summary cards for student #}
+{% set attended = sessions|selectattr('status', 'in', ['submitted', 'terminated'])|list %}
+{% set active_list = sessions|selectattr('status', 'equalto', 'active')|list %}
+<div class="score-grid" style="margin-bottom:1.5rem;">
+  <div class="score-card" style="border-top:3px solid var(--success);">
+    <div class="num" style="font-size:1.6rem;color:var(--success);">{{ eligible_count }}</div>
+    <div class="lbl">Eligible for You</div>
+  </div>
+  <div class="score-card" style="border-top:3px solid var(--primary);">
+    <div class="num" style="font-size:1.6rem;color:var(--primary);">{{ exams_with_eligibility|length }}</div>
+    <div class="lbl">Total Tests in Catalog</div>
+  </div>
+  <div class="score-card" style="border-top:3px solid #0891b2;">
+    <div class="num" style="font-size:1.6rem;color:#0891b2;">{{ attended|length }}</div>
+    <div class="lbl">Attended Exams</div>
+  </div>
+  <div class="score-card" style="border-top:3px solid var(--danger);">
+    <div class="num" style="font-size:1.6rem;color:var(--danger);">{{ active_list|length }}</div>
+    <div class="lbl">In Progress</div>
+  </div>
+</div>
+
+<!-- Available tests section -->
+<section class="mb-2">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.85rem;">
+    <div>
+      <h2 class="section-title" style="margin-bottom:0.2rem;">Degree &amp; Department Assessments</h2>
+      <p class="text-muted" style="margin:0;font-size:0.88rem;">
+        Tests matching your registered domain (<strong>{{ current_user.domain or 'B.Tech' }}</strong>) and department are marked <strong>Eligible</strong>.
+      </p>
+    </div>
+    <span class="text-muted" style="font-size:0.82rem;font-weight:600;" id="filterCountBadge">
+      Showing {{ exams_with_eligibility|length }} assessments
+    </span>
+  </div>
+
+  <!-- Domain & Category Switcher -->
+  <div class="domain-filter-wrap" style="margin-bottom:0.65rem;">
+    <span class="text-muted" style="font-size:0.78rem;font-weight:600;width:100%;margin-bottom:0.25rem;">Switch domain / category</span>
+    <button type="button" class="domain-pill active" data-filter="all">🌟 All Domains</button>
+    <button type="button" class="domain-pill" data-filter="eligible" style="border-color:var(--success);color:var(--success);">
+      ✅ Eligible for You ({{ eligible_count }})
+    </button>
+    <button type="button" class="domain-pill" data-filter="B.Tech">💻 B.Tech</button>
+    <button type="button" class="domain-pill" data-filter="CSE">🖥️ CSE</button>
+    <button type="button" class="domain-pill" data-filter="ECE">📡 ECE</button>
+    <button type="button" class="domain-pill" data-filter="AI">🤖 AI &amp; Data Science</button>
+    <button type="button" class="domain-pill" data-filter="EEE">⚡ EEE</button>
+    <button type="button" class="domain-pill" data-filter="Mechanical">⚙️ Mechanical</button>
+    <button type="button" class="domain-pill" data-filter="MCA">📱 MCA</button>
+    <button type="button" class="domain-pill" data-filter="BA">📚 BA</button>
+    <button type="button" class="domain-pill" data-filter="General">🌱 Foundation</button>
+  </div>
+
+  {% if exams_with_eligibility %}
+  <div class="exam-cards" id="examCardsGrid">
+    {% for item in exams_with_eligibility %}
+    {% set exam = item.exam %}
+    <div class="exam-card {% if item.is_eligible %}exam-card-eligible{% else %}exam-card-locked{% endif %}" 
+         data-domain="{{ exam.target_domain }}" 
+         data-subject="{{ exam.subject }}"
+         data-eligible="{% if item.is_eligible %}true{% else %}false{% endif %}"
+         style="{% if not item.is_eligible %}opacity:0.82;background:#f9fafb;border-color:#e5e7eb;{% else %}border-color:#bbf7d0;box-shadow:0 2px 6px rgba(34,197,94,0.06);{% endif %}">
+      
+      <div class="exam-card-top">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;gap:0.5rem;flex-wrap:wrap;">
+          <span class="exam-subject" style="font-size:0.75rem;padding:0.2rem 0.5rem;border-radius:4px;background:#eff6ff;color:#1d4ed8;font-weight:600;">
+            {{ exam.subject }}
+          </span>
+          {% if item.is_eligible %}
+            <span class="badge badge-low" style="font-size:0.72rem;background:#dcfce7;color:#15803d;font-weight:700;">
+              🟢 Eligible to Take
+            </span>
+          {% else %}
+            <span class="badge badge-high" style="font-size:0.72rem;background:#fee2e2;color:#b91c1c;font-weight:700;">
+              🔒 Ineligible
+            </span>
+          {% endif %}
+        </div>
+
+        <h3 style="margin:0.25rem 0 0.4rem;font-size:1.08rem;font-weight:600;line-height:1.35;">{{ exam.title }}</h3>
+        <p class="exam-desc" style="font-size:0.84rem;color:var(--muted);line-height:1.45;margin-bottom:0.6rem;">
+          {{ exam.description }}
+        </p>
+
+        <!-- Eligibility Criteria Details -->
+        <div style="font-size:0.75rem;padding:0.4rem 0.6rem;border-radius:6px;margin-bottom:0.5rem;{% if item.is_eligible %}background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;{% else %}background:#fff1f2;color:#9f1239;border:1px solid #fecdd3;{% endif %}">
+          {% if item.is_eligible %}
+            <strong>✓ You are eligible:</strong> {{ item.eligibility_reason }}
+          {% else %}
+            <strong>✕ Cannot write:</strong> {{ item.eligibility_reason }}
+          {% endif %}
+        </div>
+      </div>
+
+      <div>
+        <div class="exam-card-meta" style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;display:flex;justify-content:space-between;">
+          <span>⏱ {{ exam.duration_minutes }} min</span>
+          <span>📝 {{ exam.total_questions }} MCQs</span>
+          <span>🎓 {{ exam.target_domain }}</span>
+        </div>
+
+        {% if item.is_eligible %}
+          <a href="{{ url_for('exam.precheck', exam_id=exam.id) }}" class="btn btn-primary btn-block" style="font-weight:600;">
+            Start Test →
+          </a>
+        {% else %}
+          <button type="button" class="btn btn-outline btn-block" disabled style="opacity:0.55;cursor:not-allowed;background:#f3f4f6;" title="{{ item.eligibility_reason }}">
+            🔒 Ineligible (Domain Mismatch)
+          </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">No assessments cataloged yet.</p>
+  {% endif %}
+</section>
+
+<div class="divider"></div>
+
+<!-- Attended / history section -->
+<section>
+  <h2 class="section-title">My Exam History &amp; Scorecards</h2>
+  <p class="text-muted" style="margin:-0.35rem 0 0.85rem;font-size:0.88rem;">
+    Completed and attended tests with academic performance scores and AI proctoring integrity evaluations.
+  </p>
+
+  {% if sessions %}
+  <div class="eg-card" style="padding:0;overflow:hidden;">
+    <table class="eg-table">
+      <thead>
+        <tr>
+          <th>Session</th>
+          <th>Exam Title</th>
+          <th>Status</th>
+          <th>Academic Score</th>
+          <th>Integrity Score</th>
+          <th>Risk Rating</th>
+          <th>Started At</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in sessions %}
+        <tr>
+          <td><strong>#{{ s.id }}</strong></td>
+          <td>
+            <strong>{{ s.exam_title }}</strong>
+          </td>
+          <td>
+            {% if s.status == 'active' %}
+              <span class="badge badge-active">● Active Now</span>
+            {% elif s.status == 'submitted' %}
+              <span class="badge badge-submitted">Attended · Submitted</span>
+            {% elif s.status == 'terminated' %}
+              <span class="badge badge-high">Terminated</span>
+            {% else %}
+              <span class="badge badge-secondary">{{ s.status }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.test_score %}
+              <div style="font-weight:700;color:var(--primary);font-size:0.95rem;">
+                📝 {{ s.test_score }}
+              </div>
+              {% if '100' in s.test_score or '80' in s.test_score or '60' in s.test_score or '40' in s.test_score %}
+                <span class="badge badge-low" style="font-size:0.68rem;padding:0.15rem 0.45rem;">Passed</span>
+              {% else %}
+                <span class="badge badge-high" style="font-size:0.68rem;padding:0.15rem 0.45rem;">Needs Review</span>
+              {% endif %}
+            {% else %}
+              <span class="text-muted" style="font-size:0.8rem;">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.integrity_score %}
+              <strong>{{ s.integrity_score.score }}</strong>/100
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.integrity_score %}
+              <span class="badge badge-{{ s.integrity_score.risk_label|lower }}">{{ s.integrity_score.risk_label }}</span>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td class="text-muted" style="font-size:0.82rem;">
+            {{ s.started_at.strftime('%d %b %Y, %H:%M') if s.started_at else '—' }}
+          </td>
+          <td>
+            {% if s.status == 'active' %}
+              <a href="{{ url_for('exam.take_exam', session_id=s.id) }}" class="btn btn-primary btn-sm">Continue</a>
+            {% elif s.status in ['submitted', 'terminated'] %}
+              <a href="{{ url_for('exam.session_report', session_id=s.id) }}" class="btn btn-outline btn-sm">Report</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="eg-card">
+    <p class="text-muted" style="margin:0;">
+      You have not attended any exam yet. Choose an eligible assessment above to begin with automated AI proctoring.
+    </p>
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleEditProfile() {
+  const sec = document.getElementById('editProfileSection');
+  if (sec.style.display === 'none' || !sec.style.display) {
+    sec.style.display = 'block';
+  } else {
+    sec.style.display = 'none';
+  }
+}
+
+function onEditStatusChange() {
+  const status = document.getElementById('editStatusSelect').value;
+  const yearSelect = document.getElementById('editYearSelect');
+  if (status === 'Beginner') {
+    yearSelect.value = 'Beginner / Self-Learner';
+  } else if (status === 'Graduated') {
+    yearSelect.value = 'Graduated';
+  }
+}
+
+function onEditDomainChange() {
+  const dom = document.getElementById('editDomainSelect').value;
+  const deptInput = document.getElementById('editDeptInput');
+  const defaults = {
+    'B.Tech': 'Computer Science & Engineering (CSE)',
+    'MCA': 'Computer Applications',
+    'BA': 'English Literature',
+    'B.Sc': 'Computer Science',
+    'B.Com': 'Accounting & Finance',
+    'M.Tech': 'Computer Science & Engineering',
+    'MBA': 'Finance & Strategy',
+    'Other': 'General Studies'
+  };
+  if (defaults[dom]) {
+    deptInput.value = defaults[dom];
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const pills = document.querySelectorAll('.domain-pill');
+  const cards = document.querySelectorAll('.exam-card');
+  const countBadge = document.getElementById('filterCountBadge');
+
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      pills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+
+      const filter = pill.getAttribute('data-filter');
+      let visible = 0;
+
+      cards.forEach(card => {
+        const domain = card.getAttribute('data-domain') || '';
+        const subject = card.getAttribute('data-subject') || '';
+        const isEligible = card.getAttribute('data-eligible') === 'true';
+
+        let show = false;
+        if (filter === 'all') {
+          show = true;
+        } else if (filter === 'eligible') {
+          show = isEligible;
+        } else if (filter === 'General') {
+          show = (domain === 'All' || domain === 'General' || subject.toLowerCase().includes('foundation') || subject.toLowerCase().includes('beginner'));
+        } else {
+          const sub = subject.toUpperCase();
+          const dom = domain.toUpperCase();
+          const f = filter.toUpperCase();
+          show = (dom === f || sub === f || sub.includes(f) || dom.includes(f)
+            || (f === 'AI' && (sub.includes('AI') || sub.includes('DATA') || dom.includes('AI')))
+            || (f === 'MECHANICAL' && (sub.includes('MECH') || dom.includes('MECH'))));
+        }
+
+        if (show) {
+          card.style.display = 'flex';
+          visible++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      if (countBadge) {
+        countBadge.textContent = `Showing ${visible} assessment${visible === 1 ? '' : 's'}`;
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
